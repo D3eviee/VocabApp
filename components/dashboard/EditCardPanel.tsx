@@ -8,8 +8,6 @@ import MeaningsSection from './editor/MeaningsSection';
 import VariationsSection from './editor/VariationsSection';
 import SectionHeader from './editor/SectionHeader';
 import { BookOpen, Layers, Save, Trash2 } from 'lucide-react';
-import Button from './ui/Button';
-
 
 export default function EditCardPanel({ deckId }: { deckId: string }) {
   const {setActiveCardId, activeCardId, formData, addMeaning, addVariation, updateMainField, setFormData, updateMeaningField, removeMeaning, addMeaningExample, updateMeaningExample, removeMeaningExample} = useEditorStore();

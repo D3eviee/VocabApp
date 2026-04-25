@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, timestamp, index, pgEnum, text, integer, jsonb} from "drizzle-orm/pg-core";
+import { pgTable, uuid, varchar, timestamp, index, pgEnum, text, integer, jsonb, real} from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
 export const partOfSpeechEnum = pgEnum("part_of_speech", [
@@ -70,7 +70,6 @@ export const decks = pgTable("decks", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-// Tabela zawartości - tutaj dzieje się magia "nieskończoności"
 export const deckItems = pgTable("deck_items", {
   id: uuid("id").defaultRandom().primaryKey(),
   deckId: uuid("deck_id").notNull().references(() => decks.id, { onDelete: "cascade" }),
@@ -88,5 +87,9 @@ export const deckItems = pgTable("deck_items", {
   description: text("description"),                // Opis / treść opowieści
   variations: jsonb("variations").$type<WordVariation[]>().default([]).notNull(),
   
+  dueDate: timestamp("due_date").defaultNow().notNull(), // Kiedy karta ma zostać wyświetlona ponownie
+  interval: integer("interval").default(0).notNull(), // Aktualny odstęp między powtórkami (w dniach)
+  easeFactor: real("ease_factor").default(2.5).notNull(), // Współczynnik łatwości (domyślnie 2.5 jak w algorytmie SM-2)
+  repetitions: integer("repetitions").default(0).notNull(), 
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
