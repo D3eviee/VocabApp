@@ -1,7 +1,7 @@
 'use server'
 import { db } from "@/server/db";
 import { deckItems } from "@/server/schema";
-import { eq, asc } from "drizzle-orm";
+import { eq, asc, lte, sql } from "drizzle-orm";
 import { addDays } from "date-fns";
 
 export async function getDeckItems(deckId: string) {
@@ -136,4 +136,45 @@ export async function rateCardAction(cardId: string, rating: 'again' | 'hard' | 
     console.error("SRS Update Error:", error);
     return { success: false };
   }
+}
+
+export async function getUserStatsAction() {
+  const now = new Date();
+
+  // 1. DUE TODAY (Karty do powtórki na dziś lub zaległe)
+  // Szukamy kart, których dueDate jest równe lub mniejsze od obecnego czasu
+  const dueTodayResult = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(deckItems)
+    .where(lte(deckItems.dueDate, now));
+
+  const dueToday = Number(dueTodayResult[0]?.count || 0);
+
+  // 2. RETENTION RATE (Wskaźnik zapamiętywania)
+  // Obliczamy to klasycznym dla SRS sposobem:
+  // Karty zapamiętane (interval > 0) / Wszystkie przerobione karty (repetitions > 0)
+  // Kiedy użytkownik wciska "Again" (zapomniał), interval zazwyczaj wraca do 0.
+  const statsResult = await db
+    .select({
+      totalStudied: sql<number>`sum(case when ${deckItems.repetitions} > 0 then 1 else 0 end)`,
+      remembered: sql<number>`sum(case when ${deckItems.repetitions} > 0 and ${deckItems.interval} > 0 then 1 else 0 end)`,
+    })
+    .from(deckItems);
+
+  const totalStudied = Number(statsResult[0]?.totalStudied || 0);
+  const remembered = Number(statsResult[0]?.remembered || 0);
+  
+  const retentionRate = totalStudied > 0 
+    ? Math.round((remembered / totalStudied) * 100) 
+    : 0;
+
+  // 3. CURRENT STREAK
+  // Na razie zwracamy mockowaną wartość, ponieważ brakuje nam tabeli z historią nauki.
+  const currentStreak = 0;
+
+  return {
+    dueToday,
+    retentionRate,
+    currentStreak
+  };
 }
