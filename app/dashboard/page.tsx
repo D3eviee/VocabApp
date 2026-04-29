@@ -9,10 +9,12 @@ export default async function Dashboard() {
   const decks = await getUserDecks();
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 md:p-12 text-gray-900 font-sans">
-      <Header user={user}/>
-      <Summary/>
-      <Decks decks={decks}/>
+    <div className="min-h-screen bg-gray-50 text-gray-900 font-sans">
+      <div className='max-w-5xl me-auto ms-auto px-6 pt-12'>
+        <Header user={user}/>
+        <Summary/>
+        <Decks decks={decks}/>
+      </div>
     </div>
   );
 }

@@ -21,6 +21,8 @@ export async function getCurrentUser() {
             id: users.id,
             firstName: users.firstName,
             email: users.email,
+            streak: users.streak,
+            lastStudyDate: users.lastStudyDate,
         })
         .from(users)
         .where(eq(users.id, userId))

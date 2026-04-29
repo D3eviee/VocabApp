@@ -34,6 +34,8 @@ export const users = pgTable("users", {
   firstName: varchar("first_name", { length: 100 }),
   createdAt: timestamp("created_at", { withTimezone: true, mode: "date" }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" }).defaultNow(),
+  streak: integer("streak").default(0),
+  lastStudyDate: timestamp("last_study_date"), 
 }, (table) => [ index("idx_users_email").on(table.email) ]);
 
 // SESSIONS
@@ -73,20 +75,19 @@ export const decks = pgTable("decks", {
 export const deckItems = pgTable("deck_items", {
   id: uuid("id").defaultRandom().primaryKey(),
   deckId: uuid("deck_id").notNull().references(() => decks.id, { onDelete: "cascade" }),
-  order: integer("order").default(0).notNull(), // storyboard order
 
   // CARDS
   front: text("front"),
-  back: text("back"), 
   partOfSpeech: varchar("part_of_speech", { length: 30 }),
-  meanings: jsonb("meanings").$type<Meaning[]>().default([]).notNull(), // Tablica niezależnych znaczeń
+  meanings: jsonb("meanings").$type<Meaning[]>().default([]).notNull(),
+  variations: jsonb("variations").$type<WordVariation[]>().default([]).notNull(),
   
   // STORY BOARDS
   dateLabel: varchar("date_label", { length: 50 }), // np. "15 Marca 2024"
   title: varchar("title", { length: 255 }),        // Tytuł karty w historii
   description: text("description"),                // Opis / treść opowieści
-  variations: jsonb("variations").$type<WordVariation[]>().default([]).notNull(),
-  
+  order: integer("order").default(0).notNull(),
+
   dueDate: timestamp("due_date").defaultNow().notNull(), // Kiedy karta ma zostać wyświetlona ponownie
   interval: integer("interval").default(0).notNull(), // Aktualny odstęp między powtórkami (w dniach)
   easeFactor: real("ease_factor").default(2.5).notNull(), // Współczynnik łatwości (domyślnie 2.5 jak w algorytmie SM-2)

@@ -21,14 +21,14 @@ const NavbarNavigation = () => {
           >
             Decks
           </Link>
-          <Link
+          {/* <Link
             href="/dashboard/statistics"
             className={`relative z-10 w-16 text-center py-1 rounded-full text-13 font-semibold transition-colors duration-300 ${
               isStats ? 'text-gray-900' : 'text-gray-500 hover:text-gray-900'
             }`}
           >
             Stats
-          </Link>
+          </Link> */}
         </div>
     </div>
   )

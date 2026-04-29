@@ -1,8 +1,9 @@
 'use server'
 import { db } from "@/server/db";
-import { deckItems } from "@/server/schema";
-import { eq, asc, lte, sql, desc} from "drizzle-orm";
-import { addDays } from "date-fns";
+import { deckItems, decks, users } from "@/server/schema";
+import { eq, asc, lte, sql, desc, and} from "drizzle-orm";
+import { addDays, isToday, isYesterday } from "date-fns";
+import { getCurrentUser } from "@/lib/auth";
 
 export async function getDeckItems(deckId: string) {
   return await db.select()
@@ -81,55 +82,56 @@ export async function deleteCardAction(id: string | undefined) {
   }
 }
 
+
 export async function rateCardAction(cardId: string, rating: 'again' | 'hard' | 'good' | 'easy') {
   try {
-    // 1. Pobierz aktualne statystyki karty
+    // 1. Pobierz aktualnego użytkownika i kartę
+    const user = await getCurrentUser();
+    if (!user) return { success: false, error: "Unauthorized" };
+
     const [card] = await db.select().from(deckItems).where(eq(deckItems.id, cardId));
     if (!card) return { success: false, error: "Card not found" };
 
-    // Mapowanie oceny na wartość liczbową (q) algorytmu SM-2
-    // again: 0, hard: 3, good: 4, easy: 5
+    // --- LOGIKA ALGORYTMU SM-2 (Zostawiasz tak jak mieliśmy) ---
     const q = { again: 0, hard: 3, good: 4, easy: 5 }[rating];
-    
     let { interval, easeFactor, repetitions } = card;
-    let newInterval: number;
-    let newEaseFactor = easeFactor;
-    let newRepetitions = repetitions;
+    let newInterval: number, newEaseFactor = easeFactor, newRepetitions = repetitions;
 
-    // 2. Logika SM-2
     if (q < 3) {
-      // Jeśli "Again" - resetujemy postęp
-      newRepetitions = 0;
-      newInterval = 1; // Wraca do nauki na jutro (lub dziś)
+      newRepetitions = 0; newInterval = 1;
     } else {
-      // Jeśli odpowiedź poprawna
-      if (newRepetitions === 0) {
-        newInterval = 1;
-      } else if (newRepetitions === 1) {
-        newInterval = 6;
-      } else {
-        newInterval = Math.round(interval * easeFactor);
-      }
+      if (newRepetitions === 0) newInterval = 1;
+      else if (newRepetitions === 1) newInterval = 6;
+      else newInterval = Math.round(interval * easeFactor);
       
       newRepetitions++;
-      
-      // Obliczanie nowego Ease Factor (współczynnika łatwości)
       newEaseFactor = easeFactor + (0.1 - (5 - q) * (0.08 + (5 - q) * 0.02));
       if (newEaseFactor < 1.3) newEaseFactor = 1.3;
     }
-
-    // 3. Oblicz nową datę powtórki
     const newDueDate = addDays(new Date(), newInterval);
 
-    // 4. Zapisz w bazie
+    // Zapisz kartę w bazie...
     await db.update(deckItems)
-      .set({
-        interval: newInterval,
-        easeFactor: newEaseFactor,
-        repetitions: newRepetitions,
-        dueDate: newDueDate
-      })
+      .set({ interval: newInterval, easeFactor: newEaseFactor, repetitions: newRepetitions, dueDate: newDueDate })
       .where(eq(deckItems.id, cardId));
+
+    let newStreak = Number(users.streak) || 0;
+    const lastStudy = user.lastStudyDate ? new Date(user.lastStudyDate) : null;
+
+    if (!lastStudy) newStreak = 1;
+    else if (isYesterday(lastStudy))  newStreak += 1;
+    else if (!isToday(lastStudy)) newStreak = 1;
+    // (Jeśli uczył się 'isToday', nie robimy nic – passa na dziś już jest zaliczona)
+
+    // Aktualizujemy dane użytkownika
+    if (!lastStudy || !isToday(lastStudy)) {
+      await db.update(users)
+        .set({ 
+          streak: newStreak, 
+          lastStudyDate: new Date() 
+        })
+        .where(eq(users.id, user.id));
+    }
 
     return { success: true, nextDate: newDueDate };
   } catch (error) {
@@ -139,45 +141,67 @@ export async function rateCardAction(cardId: string, rating: 'again' | 'hard' | 
 }
 
 export async function getUserStatsAction() {
-  const now = new Date();
+  try {
+    const user = await getCurrentUser(); 
+    if (!user) {
+      return { currentStreak: 0, dueToday: 0, retentionRate: 0 };
+    }
 
-  // 1. DUE TODAY (Karty do powtórki na dziś lub zaległe)
-  // Szukamy kart, których dueDate jest równe lub mniejsze od obecnego czasu
-  const dueTodayResult = await db
-    .select({ count: sql<number>`count(*)` })
-    .from(deckItems)
-    .where(lte(deckItems.dueDate, now));
+    const today = new Date();
 
-  const dueToday = Number(dueTodayResult[0]?.count || 0);
+    // 2. DUE TODAY: Tylko dla klasycznych fiszek (decks.type === 'classic')
+    const [dueResult] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(deckItems)
+      .innerJoin(decks, eq(decks.id, deckItems.deckId))
+      .where(
+        and(
+          eq(decks.userId, user.id),
+          eq(decks.type, "classic"), // <--- ODSĄCZAMY STORYBOARDY!
+          lte(deckItems.dueDate, today) 
+        )
+      );
 
-  // 2. RETENTION RATE (Wskaźnik zapamiętywania)
-  // Obliczamy to klasycznym dla SRS sposobem:
-  // Karty zapamiętane (interval > 0) / Wszystkie przerobione karty (repetitions > 0)
-  // Kiedy użytkownik wciska "Again" (zapomniał), interval zazwyczaj wraca do 0.
-  const statsResult = await db
-    .select({
-      totalStudied: sql<number>`sum(case when ${deckItems.repetitions} > 0 then 1 else 0 end)`,
-      remembered: sql<number>`sum(case when ${deckItems.repetitions} > 0 and ${deckItems.interval} > 0 then 1 else 0 end)`,
-    })
-    .from(deckItems);
+    const dueToday = Number(dueResult.count) || 0;
 
-  const totalStudied = Number(statsResult[0]?.totalStudied || 0);
-  const remembered = Number(statsResult[0]?.remembered || 0);
-  
-  const retentionRate = totalStudied > 0 
-    ? Math.round((remembered / totalStudied) * 100) 
-    : 0;
+    // 3. RETENTION RATE: Tylko dla klasycznych fiszek
+    const retentionData = await db
+      .select({
+        totalReviewed: sql<number>`count(case when ${deckItems.repetitions} > 0 then 1 end)`,
+        remembered: sql<number>`count(case when ${deckItems.repetitions} > 0 and ${deckItems.interval} > 1 then 1 end)`
+      })
+      .from(deckItems)
+      .innerJoin(decks, eq(decks.id, deckItems.deckId))
+      .where(
+        and(
+          eq(decks.userId, user.id),
+          eq(decks.type, "classic") 
+        )
+      );
 
-  // 3. CURRENT STREAK
-  // Na razie zwracamy mockowaną wartość, ponieważ brakuje nam tabeli z historią nauki.
-  const currentStreak = 0;
+    const totalRev = Number(retentionData[0]?.totalReviewed) || 0;
+    const remembered = Number(retentionData[0]?.remembered) || 0;
+    
+    let retentionRate = 0;
+    if (totalRev > 0) {
+      retentionRate = Math.round((remembered / totalRev) * 100);
+    }
 
-  return {
-    dueToday,
-    retentionRate,
-    currentStreak
-  };
+    // 4. CURRENT STREAK (zostaje jak było)
+    const currentStreak = user.streak || 0;
+
+    return {
+      currentStreak,
+      dueToday,
+      retentionRate
+    };
+
+  } catch (error) {
+    console.error("Failed to fetch user stats:", error);
+    return { currentStreak: 0, dueToday: 0, retentionRate: 0 };
+  }
 }
+
 export async function createStorytelingCardAction(deckId: string) {
   if (!deckId) return { success: false, error: "Brak ID roadmapy" };
 
