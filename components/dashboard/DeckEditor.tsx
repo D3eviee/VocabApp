@@ -20,6 +20,8 @@ export default function DeckEditor({ deckId }: { deckId: string }) {
     }
   }, [activeCardId, cards, setActiveCardId]);
 
+  console.log(cards)
+
   return (
     <div className="h-full flex flex-row bg-[#F5F5F7] overflow-hidden">
       <DeckMenu deckId={deckId} />

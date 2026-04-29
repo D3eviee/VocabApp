@@ -13,7 +13,7 @@ const badgeConfig: Record<string, { label: string; style: string }> = {
 };
 
 export default function DeckMenuItemBadge({ type }: {type: string}) {
-    const config = badgeConfig[type?.toLowerCase()] || badgeConfig["unknown"];
+    const config = badgeConfig[type?.toLowerCase() || "unknown"];
     
     return (
         <span className={`shrink-0 w-fit inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold tracking-wider uppercase border ${config.style}`}>

@@ -1,5 +1,5 @@
-'use client'
-import DeckThumbnail from '../DeckThumbnail';
+import { FlashcardDeckThumbnail } from '../FlashcardDeckThumbnail';
+import { StoryboardDeckThumbnail } from '../StoryboardDeckThumbnail';
 
 type Decks = {
     id: string;
@@ -9,13 +9,24 @@ type Decks = {
     createdAt: Date;
 }[]
 
-export default function Decks({decks}:{decks:Decks}) {   
+export default function Decks({decks}:{decks:Decks}) {  
+    const classic = decks.filter(deck => deck.type == "classic")
+    const storyboards = decks.filter(deck => deck.type == "storytelling")
+    
     return (
-        <div>
-            <h2 className="text-xl font-semibold mb-6">Decks</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                { decks.map((deck) => <DeckThumbnail key={deck.id} deck={deck}/> )}
+        <div className='flex flex-col gap-6'>
+            <div>
+            <h2 className="text-xl font-semibold mb-3">Decks</h2>
+            <div className="w-full flex flex-row gap-3">
+                { classic.map((deck) => <FlashcardDeckThumbnail key={deck.id} deck={deck}/> )}
             </div>
         </div>
+            <div>
+            <h2 className="text-xl font-semibold mb-3">Storyboards</h2>
+            <div className="w-full flex flex-row gap-3">
+                { storyboards.map((deck) => <StoryboardDeckThumbnail key={deck.id} deck={deck}/> )}
+            </div>
+        </div>
+    </div>  
     );
 }

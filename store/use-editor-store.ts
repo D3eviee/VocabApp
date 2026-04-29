@@ -20,7 +20,10 @@ export interface FlashcardDraft {
     id?: string;
     deckId?: string;
     front: string;
-    partOfSpeech: PartOfSpeech | string; // Wróciło na samą górę!
+    partOfSpeech: PartOfSpeech | string;
+    title: string,
+    description: string,
+    dateLabel: string,
     meanings: Meaning[]; 
     variations: Variation[];
 }

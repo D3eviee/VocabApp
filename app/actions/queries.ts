@@ -1,7 +1,7 @@
 'use server'
 import { db } from "@/server/db";
 import { deckItems } from "@/server/schema";
-import { eq, asc, lte, sql } from "drizzle-orm";
+import { eq, asc, lte, sql, desc} from "drizzle-orm";
 import { addDays } from "date-fns";
 
 export async function getDeckItems(deckId: string) {
@@ -177,4 +177,48 @@ export async function getUserStatsAction() {
     retentionRate,
     currentStreak
   };
+}
+export async function createStorytelingCardAction(deckId: string) {
+  if (!deckId) return { success: false, error: "Brak ID roadmapy" };
+
+  try {
+    const lastItem = await db
+      .select({ order: deckItems.order })
+      .from(deckItems)
+      .where(eq(deckItems.deckId, deckId))
+      .orderBy(desc(deckItems.order))
+      .limit(1);
+
+    const nextOrder = lastItem.length > 0 ? (lastItem[0].order ?? 0) + 1 : 0;
+
+    const [newItem] = await db
+      .insert(deckItems)
+      .values({
+        deckId,
+        order: nextOrder,
+        dateLabel: "",
+        title: "",
+        description: "",
+      })
+      .returning({ id: deckItems.id });
+
+    return { success: true, id: newItem.id };
+  } catch (error) {
+    console.error("Create Item Error:", error);
+    return { success: false, error: "Nie udało się utworzyć nowej części" };
+  }
+}
+
+export async function reorderStoryPartsAction(items: { id: string; order: number }[]) {
+  try {
+    for (const item of items) {
+      await db.update(deckItems)
+        .set({ order: item.order })
+        .where(eq(deckItems.id, item.id));
+    }
+    return { success: true };
+  } catch (error) {
+    console.error("Reorder Error:", error);
+    return { success: false, error: "Nie udało się zapisać kolejności" };
+  }
 }

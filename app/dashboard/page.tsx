@@ -10,7 +10,6 @@ export default async function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50 p-6 md:p-12 text-gray-900 font-sans">
-      {/* HEADER */}
       <Header user={user}/>
       <Summary/>
       <Decks decks={decks}/>
