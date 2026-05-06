@@ -13,7 +13,7 @@ export default function RootLayout({children }: Readonly<{ children: React.React
     <QueryClientProvider client={queryClient}>
       <Navbar />
       <ModalProvider/>
-      <main className="h-[calc(100vh-57px)] overflow-hidden">
+      <main className="h-full md:h-[calc(100vh-57px)]">
         {children}
       </main>
     </QueryClientProvider>

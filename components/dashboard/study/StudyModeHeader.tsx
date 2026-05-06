@@ -5,7 +5,7 @@ const StudyModeHeader = ({currentIndex, cardsCount}:{currentIndex:number, cardsC
   const progress = (currentIndex/cardsCount) * 100;
   
   return (
-    <header className='relative flex flex-row w-full px-10 py-6'>
+    <header className='relative flex flex-row w-full px-4 py-6 md:px-10 md:py-6'>
       {/* BACK BUTTON */}
       <div className="flex items-center justify-between">
         <Link
@@ -18,11 +18,11 @@ const StudyModeHeader = ({currentIndex, cardsCount}:{currentIndex:number, cardsC
 
       {/* BACK BUTTON */}
       <div className="absolute w-1/2 left-1/2 flex flex-col items-center top-1/2 -translate-y-1/2 -translate-x-1/2">
-        <div className="text-xs font-bold text-[#2B2B2B] tracking-widest uppercase mb-1">{currentIndex + 1} / {cardsCount}</div>
+        <div className="text-xs font-bold text-green-500 tracking-widest uppercase mb-1">{currentIndex + 1} / {cardsCount}</div>
 
-        <div className='relative w-full rounded-xl h-3 border-[0.5px] border-[#2B2B2B]'>
+        <div className='relative w-full rounded-xl h-3 border-[0.5px] border-green-500'>
           <div 
-            className="h-full bg-[#2B2B2B] transition-all duration-300 ease-out rounded-2xl" 
+            className="h-full bg-green-500 transition-all duration-300 ease-out rounded-2xl" 
             style={{ width: `${progress}%` }}
           />
         </div>

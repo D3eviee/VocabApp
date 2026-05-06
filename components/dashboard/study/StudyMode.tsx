@@ -20,19 +20,18 @@ export default function StudyMode({ deckId }: { deckId: string }) {
 
   // EMPTY DECK
   if (cards.length === 0) return (<SessionEmptyView deckId={deckId}/>)
-
   // SESSION FINISHED
   if (isFinished) return (<SessionEndView/>)
 
   const currentCard = cards[currentIndex];
  
   return (
-    <div className='bg-[#F2F2F2] h-[calc(100vh-56px)] border-2'>
-      <div className="max-w-5xl me-auto ms-auto flex flex-col items-center mt-12 bg-white rounded-3xl border shadow-2xs">
+    <div className='h-full bg-[#F2F2F2]  md:h-[calc(100vh-56px)]'>
+      <div className="max-w-5xl me-auto ms-auto flex flex-col items-center  bg-white rounded-3xl md:border md:shadow-2xs md:mt-12">
         <StudyModeHeader cardsCount={cards.length} currentIndex={currentIndex}/>
       
         {/* STUDY AREA */}
-        <main className="w-full flex flex-col items-center justify-center pt-10">
+        <main className="h-full w-11/12 md:w-full flex flex-col items-center justify-center pt-10">
           <div className='w-full relative flex justify-center py-6'>
             <FlashcardView 
               currentCard={currentCard} 

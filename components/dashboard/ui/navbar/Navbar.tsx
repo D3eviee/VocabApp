@@ -60,7 +60,7 @@ export default function Navbar() {
             <span className="text-xl font-extrabold tracking-tighter text-gray-950 hidden md:block">VocabApp</span>
           </Link>
 
-          <NavbarNavigation />
+          {/* <NavbarNavigation /> */}
           
           <NavbarOptions 
             isSearchOpen={isSearchOpen} 

@@ -5,6 +5,7 @@ import { eq, asc, lte, sql, desc, and} from "drizzle-orm";
 import { addDays, isToday, isYesterday } from "date-fns";
 import { getCurrentUser } from "@/lib/auth";
 
+// GETTING ALL CARDS FROM THE DECK
 export async function getDeckItems(deckId: string) {
   return await db.select()
     .from(deckItems)
@@ -12,7 +13,7 @@ export async function getDeckItems(deckId: string) {
     .orderBy(asc(deckItems.order));
 }
 
-// 2. AKTUALIZACJA KARTY
+// 2. CARD DATA UPDATE
 export async function updateCardAction(id: string | undefined, data: any) {
   if(!id) return { success: false, error: "No ID provided" };
 
@@ -38,7 +39,7 @@ export async function updateCardAction(id: string | undefined, data: any) {
   }
 }
 
-// 3. TWORZENIE NOWEJ KARTY (Czysty Draft)
+// CREATE NEW CARD -> CARD WITH DRAFT STATUS -> USER HAVENT SAVED AFTER CREATING
 export async function createCardAction(deckId: string) {
   try {
     const [newCard] = await db
@@ -46,8 +47,6 @@ export async function createCardAction(deckId: string) {
       .values({
         deckId: deckId,
         front: "New Word",
-        
-        // Inicjalizujemy puste tablice dla JSONB
         meanings: [{ 
           id: crypto.randomUUID(), 
           back: "", 
@@ -66,7 +65,7 @@ export async function createCardAction(deckId: string) {
   }
 }
 
-
+// DELETE ITEM FROM THE DECK
 export async function deleteCardAction(id: string | undefined) {
   if (!id) return { success: false, error: "No ID provided" };
 
@@ -82,17 +81,16 @@ export async function deleteCardAction(id: string | undefined) {
   }
 }
 
-
 export async function rateCardAction(cardId: string, rating: 'again' | 'hard' | 'good' | 'easy') {
   try {
-    // 1. Pobierz aktualnego użytkownika i kartę
+    // GET USER
     const user = await getCurrentUser();
     if (!user) return { success: false, error: "Unauthorized" };
-
+    // GET CARD DATA -> interval/ease factor/repetitions
     const [card] = await db.select().from(deckItems).where(eq(deckItems.id, cardId));
     if (!card) return { success: false, error: "Card not found" };
 
-    // --- LOGIKA ALGORYTMU SM-2 (Zostawiasz tak jak mieliśmy) ---
+    // SM-2 ALG IMPLEMENTATION 
     const q = { again: 0, hard: 3, good: 4, easy: 5 }[rating];
     let { interval, easeFactor, repetitions } = card;
     let newInterval: number, newEaseFactor = easeFactor, newRepetitions = repetitions;
@@ -110,20 +108,20 @@ export async function rateCardAction(cardId: string, rating: 'again' | 'hard' | 
     }
     const newDueDate = addDays(new Date(), newInterval);
 
-    // Zapisz kartę w bazie...
+    // SAVE CARD WITH UPDATED REPETITION DATA
     await db.update(deckItems)
       .set({ interval: newInterval, easeFactor: newEaseFactor, repetitions: newRepetitions, dueDate: newDueDate })
       .where(eq(deckItems.id, cardId));
 
+
+    // SETTING USER STREAK
     let newStreak = Number(users.streak) || 0;
     const lastStudy = user.lastStudyDate ? new Date(user.lastStudyDate) : null;
-
     if (!lastStudy) newStreak = 1;
-    else if (isYesterday(lastStudy))  newStreak += 1;
+    else if (isYesterday(lastStudy)) newStreak += 1;
     else if (!isToday(lastStudy)) newStreak = 1;
-    // (Jeśli uczył się 'isToday', nie robimy nic – passa na dziś już jest zaliczona)
 
-    // Aktualizujemy dane użytkownika
+    // UPDATE USER STREAK
     if (!lastStudy || !isToday(lastStudy)) {
       await db.update(users)
         .set({ 
@@ -137,68 +135,6 @@ export async function rateCardAction(cardId: string, rating: 'again' | 'hard' | 
   } catch (error) {
     console.error("SRS Update Error:", error);
     return { success: false };
-  }
-}
-
-export async function getUserStatsAction() {
-  try {
-    const user = await getCurrentUser(); 
-    if (!user) {
-      return { currentStreak: 0, dueToday: 0, retentionRate: 0 };
-    }
-
-    const today = new Date();
-
-    // 2. DUE TODAY: Tylko dla klasycznych fiszek (decks.type === 'classic')
-    const [dueResult] = await db
-      .select({ count: sql<number>`count(*)` })
-      .from(deckItems)
-      .innerJoin(decks, eq(decks.id, deckItems.deckId))
-      .where(
-        and(
-          eq(decks.userId, user.id),
-          eq(decks.type, "classic"), // <--- ODSĄCZAMY STORYBOARDY!
-          lte(deckItems.dueDate, today) 
-        )
-      );
-
-    const dueToday = Number(dueResult.count) || 0;
-
-    // 3. RETENTION RATE: Tylko dla klasycznych fiszek
-    const retentionData = await db
-      .select({
-        totalReviewed: sql<number>`count(case when ${deckItems.repetitions} > 0 then 1 end)`,
-        remembered: sql<number>`count(case when ${deckItems.repetitions} > 0 and ${deckItems.interval} > 1 then 1 end)`
-      })
-      .from(deckItems)
-      .innerJoin(decks, eq(decks.id, deckItems.deckId))
-      .where(
-        and(
-          eq(decks.userId, user.id),
-          eq(decks.type, "classic") 
-        )
-      );
-
-    const totalRev = Number(retentionData[0]?.totalReviewed) || 0;
-    const remembered = Number(retentionData[0]?.remembered) || 0;
-    
-    let retentionRate = 0;
-    if (totalRev > 0) {
-      retentionRate = Math.round((remembered / totalRev) * 100);
-    }
-
-    // 4. CURRENT STREAK (zostaje jak było)
-    const currentStreak = user.streak || 0;
-
-    return {
-      currentStreak,
-      dueToday,
-      retentionRate
-    };
-
-  } catch (error) {
-    console.error("Failed to fetch user stats:", error);
-    return { currentStreak: 0, dueToday: 0, retentionRate: 0 };
   }
 }
 

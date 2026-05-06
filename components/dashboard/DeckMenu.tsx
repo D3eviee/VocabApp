@@ -27,7 +27,7 @@ export default function DeckMenu({ deckId }: { deckId: string }) {
   });
 
   return (
-    <aside className="w-80 max-w-80 flex-1 border-r min-h-full h-full bg-[#F2F2F2] shrink-0 flex-col gap-[0.5px] p-3 pb-16">
+    <aside className="hidden lg:block w-80 max-w-80 flex-1 border-r min-h-full h-full bg-[#F2F2F2] shrink-0 flex-col gap-[0.5px] p-3 pb-16">
       <div className="flex flex-row items-center justify-between mb-4">
         <Link
           href="/dashboard" 

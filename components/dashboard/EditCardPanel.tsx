@@ -73,8 +73,8 @@ export default function EditCardPanel({ deckId }: { deckId: string }) {
   if (!formData) return (<div className="flex-1 flex items-center justify-center text-gray-400 font-medium">Wybierz fiszkę z menu...</div>)
     
   return (
-    <main className="relative flex-1 flex flex-row">
-      <div className="h-full w-full mx-8 pt-4 pb-18 flex flex-col">
+    <main className="relative flex-1 flex flex-col xl:flex-row">
+      <div className="h-full mx-4 md:mx-8 pt-4 pb-18 flex flex-col">
         <WordSection 
           wordValue={formData.front}
           partOfSpeechValue={formData.partOfSpeech as string}

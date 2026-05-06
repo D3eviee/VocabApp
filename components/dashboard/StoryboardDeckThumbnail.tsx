@@ -1,19 +1,12 @@
+import { DeckThumbtail } from "@/lib/types";
 import { Pencil, Play } from "lucide-react"
 import Link from "next/link";
 
-type Deck =  {
-    id: string;
-    userId: string;
-    title: string;
-    type: "classic" | "storytelling";
-    createdAt: Date;
-}
-
-export const StoryboardDeckThumbnail = ({deck}:{deck: Deck}) => {
+export const StoryboardDeckThumbnail = ({deck}:{deck: DeckThumbtail}) => {
     const { id, title } = deck
     return (
-        <div className="w-86 bg-white rounded-2xl border border-gray-200 p-5 flex flex-col hover:border-gray-300 transition-colors">
-            <h3 className="w-full font-semibold text-xl text-[#111]">{title}</h3>
+        <div className="w-full bg-white rounded-4xl border border-gray-200 p-5 flex flex-col hover:border-gray-300 transition-colors">
+            <h3 className="h-15 w-full font-semibold text-xl text-[#111]">{title}</h3>
             
             {/* ACTION BUTTONS */}
             <div className="flex flex-col mt-6">

@@ -23,7 +23,7 @@ export default function RootLayout({children }: Readonly<{ children: React.React
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="h-dvh flex flex-col overflow-hidden bg-[#F5F5F7]">
+      <body className="h-dvh flex flex-col  bg-[#F5F5F7]">
         <main className="h-full flex-1">
           {children}
         </main>

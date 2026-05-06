@@ -19,7 +19,7 @@ const WordSection = ({ wordValue, partOfSpeechValue, onWordChange, onPosChange, 
 }: WordSectionProps) => {
   return (
     <div className="w-full flex flex-col">
-      <div className="flex flex-row gap-4 w-full items-end mb-12">
+      <div className="flex flex-col xl:flex-row gap-4 w-full xl:items-end mb-12">
         <div className="flex-1">
           <PrimaryEditorInput 
             label={inputLabel} 
@@ -28,7 +28,7 @@ const WordSection = ({ wordValue, partOfSpeechValue, onWordChange, onPosChange, 
           />
         </div>
         
-        <div className="min-w-48 flex flex-col">
+        <div className="w-1/2 md:min-w-48 flex flex-col">
           <label className="text-[13px] font-bold text-gray-400 uppercase tracking-wider mb-2">Type</label>
           <select 
             value={partOfSpeechValue || "noun"} 
