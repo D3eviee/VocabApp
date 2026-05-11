@@ -1,6 +1,5 @@
 "use client";
 import { useActionState, useEffect, useState } from "react";
-import { Loader } from "lucide-react";
 import { ActionState, loginAction } from "@/app/actions/auth";
 import { useRouter } from "next/navigation";
 import { InputField } from "./InputField";
@@ -23,7 +22,7 @@ export default function LoginForm() {
     
     
     return (
-        <div className="w-full mx-auto pt-40 sm:max-w-115">
+        <div className="w-full mx-auto pt-26 sm:max-w-115">
             <FormHeader title="Welcome back" description="Enter your details to access your decks."/>
             
             <form action={formAction} className="flex flex-col gap-3">
@@ -55,7 +54,7 @@ export default function LoginForm() {
                 <SubmitButton
                     isPending={isPending}
                     disabled={emailInput.trim() === ""}
-                    className="mt-12"
+                    className="mt-6"
                 >
                     Sign In
                 </SubmitButton>

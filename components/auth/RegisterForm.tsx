@@ -27,7 +27,7 @@ export default function RegisterForm() {
     }, [state?.email, state?.firstName]);
     
     return (
-        <div className="w-full mx-auto pt-30 sm:max-w-115">
+        <div className="w-full mx-auto pt-12 sm:max-w-115">
             <FormHeader title="Create an account" description="Start building your flashcard decks today."/>
             
             <form action={formAction} className="flex flex-col gap-3 mt-8">
