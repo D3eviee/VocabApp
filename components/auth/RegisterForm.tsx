@@ -1,37 +1,90 @@
 "use client";
-import { useActionState, useEffect } from "react";
-import { ArrowRight, Loader2 } from "lucide-react";
-import { registerAction } from "@/app/actions/auth";
+import { useActionState, useEffect, useState } from "react";
+import { ActionState, registerAction } from "@/app/actions/auth";
 import { useRouter } from "next/navigation";
-import InputField from "./InputField";
-import AuthToggle from "./AuthToggle";
-import SubmitButton from "./SubmitButton";
-import FormHeader from "./FormHeader";
+import { InputField } from "./InputField";
+import { FormHeader } from "./FormHeader"; 
+import { SubmitButton } from "./SubmitButton";
 
-export default function RegisterForm({ onToggleForm }: {onToggleForm: () => void;}) {
+const initialState: ActionState = {
+  success: false,
+};
+
+export default function RegisterForm() {
     const router = useRouter();
-    const [state, formAction, isPending] = useActionState(registerAction, null);
+    const [state, formAction, isPending] = useActionState(registerAction, initialState);
+    const [emailInput, setEmailInput] = useState(state?.email || "");
+    const [nameInput, setNameInput] = useState(state?.firstName || "");
     
     useEffect(() => {
         if (state?.success) router.push("/dashboard");
     }, [state?.success, router]);
+
+    
+    useEffect(() => {
+        if (state?.email) setEmailInput(state.email);
+        if (state?.firstName) setNameInput(state.firstName);
+    }, [state?.email, state?.firstName]);
     
     return (
-        <div className="animate-in fade-in zoom-in-95 duration-300 ease-out">
-            <FormHeader title="Create your account" description="Start learning effectively today."/>
+        <div className="w-full mx-auto pt-30 sm:max-w-115">
+            <FormHeader title="Create an account" description="Start building your flashcard decks today."/>
             
-            <form action={formAction} className="flex flex-col gap-5">
-                <InputField label="First Name" type="text" name="firstName" placeholder="Hipolit" required />
-                <InputField label="Email" type="email" name="email" placeholder="name@example.com" required />
-                <InputField label="Password" type="password" name="password" placeholder="••••••••" required />
-                {state?.error && <p className="text-13 font-semibold text-red-500 text-center animate-in fade-in slide-in-from-bottom-1">{state.error}</p>}
+            <form action={formAction} className="flex flex-col gap-3 mt-8">
+                <InputField
+                    key={`firstName-${state?.timestamp || 'initial'}`}
+                    label="First name"
+                    type="text"
+                    name="firstName"
+                    id="firstName"
+                    defaultValue={state?.firstName || ""}
+                    disabled={isPending}
+                    onChange={(e) => setNameInput(e.target.value)}
+                    required
+                />
+
+                <InputField
+                    key={`email-${state?.timestamp || 'initial'}`}
+                    label="Email or Phone Number"
+                    type="text"
+                    name="email"
+                    id="email"
+                    defaultValue={state?.email || ""}
+                    disabled={isPending}
+                    onChange={(e) => setEmailInput(e.target.value)}
+                    required
+                />
                 
-                <SubmitButton isPending={isPending}>
-                    Continue <ArrowRight size={18} strokeWidth={2.5} />
+                <InputField
+                    key={`pass1-${state?.timestamp || "initial"}`}
+                    label="Password"
+                    type="password"
+                    name="password"
+                    id="password"
+                    disabled={isPending}
+                    required
+                />
+
+                <InputField
+                    key={`pass2-${state?.timestamp || "initial"}`}
+                    label="Confirm Password"
+                    type="password"
+                    name="confirmPassword"
+                    id="confirmPassword"
+                    disabled={isPending}
+                    required
+                />
+
+                {state?.error && <p className="text-13 font-medium text-red-500 text-center w-fit ml-4">{state.error}</p>}
+
+                <SubmitButton
+                    isPending={isPending}
+                    disabled={emailInput.trim() === "" || nameInput.trim() === ""}
+                    className="mt-8"
+                >
+                    Sign Up
                 </SubmitButton>
             </form>
-
-            <AuthToggle isLogin={false} onToggle={onToggleForm} />
         </div>
     );
 }

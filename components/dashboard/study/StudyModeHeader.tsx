@@ -5,31 +5,34 @@ const StudyModeHeader = ({currentIndex, cardsCount}:{currentIndex:number, cardsC
   const progress = (currentIndex/cardsCount) * 100;
   
   return (
-    <header className='relative flex flex-row w-full px-4 py-6 md:px-10 md:py-6'>
-      {/* BACK BUTTON */}
-      <div className="flex items-center justify-between">
+    <header className='relative flex items-center justify-between w-full px-4 py-4 md:px-10 md:py-6'>
+      <div className="z-10">
         <Link
           href={`/dashboard`}
-          className='p-1 rounded-2xl bg-[#333] flex items-center justify-center'
+          className='w-10 h-10 rounded-2xl bg-gray-900 text-white flex items-center justify-center hover:bg-black transition-colors'
         >
-          <ChevronLeft size={28} strokeWidth={2} className='mr-0.5'/>
+          <ChevronLeft size={24} strokeWidth={2.5} className='pr-0.5'/>
         </Link>
       </div>
 
-      {/* BACK BUTTON */}
-      <div className="absolute w-1/2 left-1/2 flex flex-col items-center top-1/2 -translate-y-1/2 -translate-x-1/2">
-        <div className="text-xs font-bold text-green-500 tracking-widest uppercase mb-1">{currentIndex + 1} / {cardsCount}</div>
+      {/* PROGRESS BAR */}
+      <div className="absolute left-0 right-0 flex flex-col items-center pointer-events-none px-16">
+        <div className="text-[10px] md:text-xs font-bold text-green-500 tracking-widest uppercase mb-1">
+          {currentIndex + 1} / {cardsCount}
+        </div>
 
-        <div className='relative w-full rounded-xl h-3 border-[0.5px] border-green-500'>
+        <div className='w-full max-w-37.5 md:max-w-xs rounded-xl h-2 md:h-3 border-[0.5px] border-green-500 overflow-hidden'>
           <div 
-            className="h-full bg-green-500 transition-all duration-300 ease-out rounded-2xl" 
+            className="h-full bg-green-500 transition-all duration-300 ease-out rounded-r-2xl" 
             style={{ width: `${progress}%` }}
           />
         </div>
-        
       </div>
-      </header>
-    )
+      
+      {/* Pusty div dla balansu flex-between */}
+      <div className="w-10 h-10"></div>
+    </header>
+  )
 }
 
-export default StudyModeHeader
+export default StudyModeHeader;

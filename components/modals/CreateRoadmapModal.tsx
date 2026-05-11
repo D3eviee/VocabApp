@@ -2,10 +2,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useModal } from "@/store/modal-store";
-import InputField from "../auth/InputField";
-import SubmitButton from "../auth/SubmitButton";
+import { InputField } from "../auth/InputField";
+import { SubmitButton } from "../auth/SubmitButton";
 import BaseModal from "./BaseModal";
-import { createRoadMapAction } from "@/app/actions/decks";
+import { createStoryboardAction } from "@/app/actions/decks";
 
 export default function CreateRoadmapModal() {
   const { isOpen, type, onClose } = useModal();
@@ -14,11 +14,9 @@ export default function CreateRoadmapModal() {
 
   const handleSubmit = async (formData: FormData) => {
     setIsPending(true);
-    
     try {
-      const result = await createRoadMapAction(formData);
-      
-      // Łapiemy result.deckId, które zwróciła nam akcja z Drizzle
+      const result = await createStoryboardAction(formData);
+    
       if (result.success && result.deckId) {
         onClose(); 
         router.push(`/dashboard/storyboard/${result.deckId}/edit`);
@@ -50,7 +48,7 @@ export default function CreateRoadmapModal() {
           disabled={isPending}
         />
         <SubmitButton isPending={isPending}>
-          {isPending ? "Creating..." : "Create Roadmap"}
+          {isPending ? "Creating..." : "Create"}
         </SubmitButton>
       </form>
     </BaseModal>

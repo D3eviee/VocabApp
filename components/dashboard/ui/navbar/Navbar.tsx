@@ -48,7 +48,7 @@ export default function Navbar() {
       
       <nav 
         onMouseLeave={closeAllMenus}
-        className={`relative top-0 z-150 transition-colors duration-300 bg-white border-b  ${
+        className={`sticky top-0 z-150 transition-colors duration-300 bg-white border-b-[0.5px] border-[#F2F2F2] ${
           isMenuOpen ?? "backdrop-blur-xl"
         }`}
       >

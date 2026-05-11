@@ -1,8 +1,8 @@
 import { useEditorStore } from '@/store/use-editor-store';
 import SectionHeader from './SectionHeader'
 import { BookOpen, Trash2 } from 'lucide-react'
-import WordSection from './WordSection';
 import MeaningsSection from './MeaningsSection';
+import { WordSection } from './WordSection';
 
 const VariationsSection = () => {
   const { 
@@ -13,12 +13,12 @@ const VariationsSection = () => {
   if (!formData) return (<div className="flex-1 flex items-center justify-center text-gray-400 font-medium">Wybierz fiszkę z menu...</div>)
 
   return (
-    <div className='flex-1 overflow-y-auto min-h-0 flex flex-col gap-6'>
+    <div className='flex-1 overflow-y-auto min-h-0 flex flex-col'>
       {formData.variations?.map((v: any, varIdx: number) => (
         <div key={v.id || varIdx} className="shrink-0 flex flex-col rounded-3xl border border-gray-200 overflow-hidden">
-          <div className="px-6 pt-6 pb-0 border-b border-gray-100">
-            <WordSection 
-              inputLabel='Variation Word'
+          <div className="px-6 pt-6 pb-0 border-b border-gray-100 mb-6">
+            <WordSection
+              inputLabel='Word'
               wordValue={v.word}
               partOfSpeechValue={v.partOfSpeech}
               onWordChange={(val) => updateVariationField(varIdx, 'word', val)}
@@ -34,9 +34,9 @@ const VariationsSection = () => {
             />
           </div>
 
-          <div className='p-6 bg-white'>
+          <div className='flex flex-col p-4 gap-4'>
             <SectionHeader
-              title="Meanings & Translations" 
+              title="Meanings" 
               icon={<BookOpen size={16} strokeWidth={2.5} />} 
               bgColor="bg-indigo-500" 
               buttonText="Add"

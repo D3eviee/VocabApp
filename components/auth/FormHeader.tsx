@@ -1,8 +1,15 @@
-export default function FormHeader({ title, description }: { title:string, description:string }) {
+import { Brain } from "lucide-react";
+
+export const FormHeader = ({ title, description }: { title:string, description:string }) => {
     return (
-        <div className="text-center mb-8">
-            <h1 className="text-2xl font-bold text-gray-900 tracking-tight">{title}</h1>
-            <p className="text-13 text-gray-500 mt-2 font-medium">{description}</p>
+        <div className="w-full flex flex-col items-center px-2 mb-10">
+          <div className="bg-[#4F39F6] w-fit h-fit p-8 rounded-4xl shadow-xl">
+            <Brain size={62} strokeWidth={2.5} color="white" />
+          </div>
+          <div className="flex flex-col mt-10 text-[#494949] ">
+            <h1 className="font-bold text-3xl text-center mb-2">{title}</h1>
+            <p className="text-base font-light text-center">{description}</p>
+          </div>
         </div>
   );
 }

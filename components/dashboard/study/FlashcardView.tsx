@@ -5,22 +5,8 @@ type FlashcardViewProps = {
   isFlipped: boolean;
   setIsFlipped: (val: boolean) => void;
   currentCard: {
-    id: string;
-    deckId: string;
-    order: number;
-    front: string | null;
-    back: string | null;
-    partOfSpeech: string | null;
-    meanings: Meaning[];
-    dateLabel: string | null;
-    title: string | null;
-    description: string | null;
-    variations: WordVariation[];
-    dueDate: Date;
-    interval: number;
-    easeFactor: number;
-    repetitions: number;
-    createdAt: Date;
+    // ... twoje typy (zostawiam bez zmian)
+    id: string; front: string | null; partOfSpeech: string | null; meanings: Meaning[]; variations: WordVariation[];
   };
 };
 
@@ -28,18 +14,24 @@ const FlashcardView = ({ isFlipped, setIsFlipped, currentCard }: FlashcardViewPr
   return (
     <div 
       onClick={() => !isFlipped && setIsFlipped(true)}
-      className={`relative w-full max-w-2xl min-h-112.5 bg-white rounded-3xl border-2 overflow-hidden transition-all duration-300 ${!isFlipped ? 'cursor-pointer hover:shadow-md hover:-translate-y-1' : ''}`}
+      className={`
+        relative w-full max-w-2xl h-full min-h-[45vh] md:max-h-50 bg-white rounded-3xl md:border-2 overflow-hidden transition-all duration-300 flex flex-col
+        ${!isFlipped ? 'cursor-pointer  hover:-translate-y-1' : ''}
+      `}
     >
       {/* CARD CONTENT */}
       {!isFlipped ? (
         /* FRONT */
-        <div className="h-full flex flex-col items-center justify-center text-center">
-          <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-6">Tap to flip</p>
-          <h1 className="text-6xl font-black text-[#2B2B2B] tracking-tight">{currentCard.front}</h1>
+        <div className="flex-1 flex flex-col items-center justify-center text-center p-6">
+          <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4 md:mb-6">Tap to flip</p>
+          {/* Responsywny rozmiar tekstu i łamanie słów */}
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-black text-[#2B2B2B] tracking-tight wrap-break-words px-2">
+            {currentCard.front}
+          </h1>
         </div>
       ) : (
         /* BACK */
-        <div className="absolute w-full flex flex-col p-10 pb-0 overflow-y-auto animate-in fade-in zoom-in-95 duration-300 inset-0">
+        <div className="absolute inset-0 flex flex-col p-6 md:p-10 overflow-y-auto animate-in fade-in zoom-in-95 duration-300 custom-scrollbar">
           
           {/* 1. MAIN WORD */}
           <FlashcardWord 
@@ -50,8 +42,8 @@ const FlashcardView = ({ isFlipped, setIsFlipped, currentCard }: FlashcardViewPr
           
           {/* 2. VARIANTS */}
           {currentCard.variations && currentCard.variations.length > 0 && (
-            <div className="pb-8"> {/* Dodany padding bottom na wypadek scrolla */}
-              <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Word Variations</h3>
+            <div className="pb-8 mt-4">
+              <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Word Variations</h3>
               
               {currentCard.variations.map((v: any, index: number) => (
                 <FlashcardWord 

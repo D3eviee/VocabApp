@@ -182,3 +182,17 @@ export async function reorderStoryPartsAction(items: { id: string; order: number
     return { success: false, error: "Nie udało się zapisać kolejności" };
   }
 }
+
+export async function getDueDeckItems(deckId: string) {
+  const today = new Date();
+  
+  return await db.select()
+    .from(deckItems)
+    .where(
+      and(
+        eq(deckItems.deckId, deckId),
+        lte(deckItems.dueDate, today) 
+      )
+    )
+    .orderBy(asc(deckItems.order));
+}

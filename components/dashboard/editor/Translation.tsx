@@ -1,7 +1,7 @@
-import PrimaryEditorInput from './PrimaryEditorInput';
 import { useEditorStore } from '@/store/use-editor-store';
 import { MessageCircle, Plus, Trash2 } from 'lucide-react';
 import SecondaryEditorInput from './SecondaryEdiotrInput';
+import { PrimaryEditorInput } from './PrimaryEditorInput';
 
 type TranslationProps = {
     meaning: {
@@ -18,7 +18,7 @@ const Translation = ({meaning, index}:TranslationProps) => {
     return (
         <div key={meaning.id || index} className="flex flex-col gap-6 mb-8 p-6  rounded-2xl bg-[#F2F2F2]  shadow-inner">
             <div className='w-full flex gap-4 items-end mb-2'>
-                <PrimaryEditorInput 
+                <PrimaryEditorInput
                     label='Translation' 
                     value={meaning.back || ""}
                     onChange={(e) => updateMeaningField(index, 'back', e.target.value)} 

@@ -1,4 +1,4 @@
-import PrimaryEditorInput from './PrimaryEditorInput'
+import { PrimaryEditorInput } from './PrimaryEditorInput';
 import SecondaryEditorInput from './SecondaryEdiotrInput'
 import { MessageCircle, Plus, Trash2 } from 'lucide-react'
 
@@ -15,9 +15,9 @@ type MeaningsSectionProps = {
 
 const MeaningsSection = ({ translationValue, examples, onTranslationChange,onRemoveMeaning, onAddExample, onExampleChange, onRemoveExample, variant = 'main' }: MeaningsSectionProps) =>{
   return (
-    <div className="h-fit w-full mt-4 bg-white shadow-xs border rounded-2xl p-6">
+    <div className="h-fit w-full border-[0.5px] border-dashed border-[#A2A2A2] p-4 rounded-2xl" >
       <div className='w-full flex gap-4 items-end mb-4'>
-        <PrimaryEditorInput 
+        <PrimaryEditorInput
           label='Translation' 
           value={translationValue || ""}
           onChange={(e) => onTranslationChange(e.target.value)} 
@@ -39,15 +39,15 @@ const MeaningsSection = ({ translationValue, examples, onTranslationChange,onRem
           </div>
           <button 
               onClick={onAddExample} 
-              className={`h-fit px-2 py-0.5 rounded-lg text-[13px] font-semibold flex items-center gap-1 transition-colors hover:cursor-pointer bg-purple-500`}
+              className={`h-fit p-1.5 rounded-lg text-[13px] font-semibold flex items-center gap-1 transition-colors hover:cursor-pointer bg-purple-500`}
             >
-              <Plus size={14} /> Add
+              <Plus size={14} />
             </button>
         </div>
 
         <div className="w-full flex flex-col gap-2">
           {examples?.map((ex: string, exIdx: number) => (
-            <div key={exIdx} className="w-full flex flex-row gap-3.5">
+            <div key={exIdx} className="w-full flex flex-row gap-2">
               <SecondaryEditorInput 
                 value={ex} 
                 onChange={(e) => onExampleChange(exIdx, e.target.value)} 
@@ -56,9 +56,9 @@ const MeaningsSection = ({ translationValue, examples, onTranslationChange,onRem
 
               <button 
                 onClick={() => onRemoveExample(exIdx)} 
-                className="p-3.5 text-red-400 hover:text-red-600 bg-white border border-gray-200 hover:border-red-200 hover:bg-red-50 rounded-xl mb-px transition-colors"
+                className="p-3 h-fit text-red-400 hover:text-red-600 bg-white border border-gray-200 hover:border-red-200 hover:bg-red-50 rounded-xl mb-px transition-colors"
               >
-                <Trash2 size={18} />
+                <Trash2 size={16} />
               </button>
             </div>
           ))}    

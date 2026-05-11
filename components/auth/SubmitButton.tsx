@@ -1,20 +1,23 @@
-import React from "react";
-import { Loader2 } from "lucide-react";
+"use client";
+import { Loader } from "lucide-react";
+import { ButtonHTMLAttributes } from "react";
 
-interface SubmitButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  isPending: boolean;
-  children: React.ReactNode;
+interface SubmitButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+    isPending: boolean;
 }
 
-export default function SubmitButton({ isPending, children, className, ...props }: SubmitButtonProps) {
+export const SubmitButton = ({  isPending, disabled, children, className = "", ...props }: SubmitButtonProps) => {
     return (
         <button
             {...props}
             type="submit"
-            disabled={isPending || props.disabled}
-            className={`mt-2 w-full flex items-center justify-center gap-2 bg-gray-950 hover:bg-black text-white py-3.5 rounded-xl text-[15px] font-semibold transition-all shadow-md active:scale-[0.98] disabled:opacity-70 disabled:pointer-events-none ${className || ""}`}
+            disabled={isPending || disabled}
+            className={`mt-12 w-full flex items-center justify-center bg-[#4F39F6] shadow-md text-white py-2 rounded-[13px] text-15 transition-all duration-75 disabled:opacity-70  active:scale-[0.98] disabled:pointer-events-none hover:cursor-pointer hover:bg-[#3E28E5] ${className}`}
         >
-            {isPending ? <Loader2 size={18} className="animate-spin text-white/80" /> : children }
+            {isPending ? <Loader size={18} className="animate-spin text-white/80" />
+            : (
+                <span className="">{children}</span>
+            )}
         </button>
     );
 }

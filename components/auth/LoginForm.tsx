@@ -1,21 +1,21 @@
 "use client";
-
-import React, { useActionState, useEffect } from "react";
-import { ArrowRight, Loader2 } from "lucide-react";
-import { loginAction } from "@/app/actions/auth";
+import { useActionState, useEffect, useState } from "react";
+import { Loader } from "lucide-react";
+import { ActionState, loginAction } from "@/app/actions/auth";
 import { useRouter } from "next/navigation";
-import InputField from "./InputField";
-import AuthToggle from "./AuthToggle";
-import SubmitButton from "./SubmitButton";
-import FormHeader from "./FormHeader";
+import { InputField } from "./InputField";
+import { FormHeader } from "./FormHeader";
+import { SubmitButton } from "./SubmitButton";
 
-interface LoginFormProps {
-  onToggleForm: () => void;
-}
 
-export default function LoginForm({ onToggleForm }: LoginFormProps) {
+const initialState: ActionState = {
+  success: false,
+};
+
+export default function LoginForm() {
     const router = useRouter();
-    const [state, formAction, isPending] = useActionState(loginAction, null);
+    const [state, formAction, isPending] = useActionState(loginAction, initialState);
+    const [emailInput, setEmailInput] = useState(state?.email || "");
     
     useEffect(() => {
         if (state?.success) router.push("/dashboard");
@@ -23,21 +23,43 @@ export default function LoginForm({ onToggleForm }: LoginFormProps) {
     
     
     return (
-        <div className="animate-in fade-in zoom-in-95 duration-300 ease-out">
+        <div className="w-full mx-auto pt-40 sm:max-w-115">
             <FormHeader title="Welcome back" description="Enter your details to access your decks."/>
             
-            <form action={formAction} className="flex flex-col gap-5">
-                <InputField  label="Email" type="email" name="email" placeholder="name@example.com" required />
-                <InputField  label="Password" type="password" name="password" placeholder="••••••••"  required 
-                    action={<button type="button" className="text-[11px] font-bold text-blue-500 hover:text-blue-600 transition-colors">Forgot?</button>}/>
+            <form action={formAction} className="flex flex-col gap-3">
+                <InputField
+                    label="Email or Phone Number"
+                    type="text"
+                    name="email"
+                    id="email"
+                    defaultValue={state?.email || ""}
+                    disabled={isPending}
+                    onChange={(e) => setEmailInput(e.target.value)}
+                />
                 
-                {state?.error && (<p className="text-13 font-semibold text-red-500 text-center animate-in fade-in slide-in-from-bottom-1">{state.error}</p>)}
-                
-                <SubmitButton isPending={isPending}> 
-                    Sign In <ArrowRight size={18} strokeWidth={2.5} />
+                <InputField
+                    key={state?.timestamp || "password-input"}
+                    label="Password"
+                    type="password"
+                    name="password"
+                    id="password"
+                    disabled={isPending}
+                    required
+                />
+
+                <div className="flex flex-col sm:flex-row sm:justify-between" >
+                    {state?.error && (<p className="text-13 font-light text-red-500 text-center animate-in fade-in slide-in-from-bottom-1 w-fit ml-3 mb-1 sm:mb-0">{state.error}</p>)}
+                    <p className="text-13 text-right font-light text-blue-500 transition-colors hover:cursor-pointer hover:text-blue-600 mr-3 w-fit ml-3">Forgot password?</p>
+                </div>
+
+                <SubmitButton
+                    isPending={isPending}
+                    disabled={emailInput.trim() === ""}
+                    className="mt-12"
+                >
+                    Sign In
                 </SubmitButton>
             </form>
-            <AuthToggle isLogin={true} onToggle={onToggleForm} />
         </div>
     );
 }

@@ -9,75 +9,87 @@ import { redirect } from "next/navigation";
 
 const SECRET_KEY = new TextEncoder().encode(process.env.JWT_SECRET)
 
-export async function registerAction(prevState: any, formData: FormData) {
-    const firstName = formData.get("firstName") as string;
-    const email = formData.get("email") as string;
-    const password = formData.get("password") as string;
+export type ActionState = {
+  success: boolean;
+  error?: string;
+  message?: string;
+  email?: string; 
+  firstName?: string; 
+  timestamp?: number;
+};
+
+export async function registerAction(_prevState: ActionState, formData: FormData): Promise<ActionState> {
+    const firstNameRaw = formData.get("firstName")?.toString() || "";
+    const emailRaw = formData.get("email")?.toString() || "";
+    const password = formData.get("password")?.toString();
+    const confirmPassword = formData.get("confirmPassword")?.toString();
+    const timestamp = Date.now();
+
+    if (!firstNameRaw || !emailRaw || !password || !confirmPassword)
+        return { success: false, error: "Please fill in all fields.", email: emailRaw, firstName:firstNameRaw, timestamp };
     
-    if (!email || !password || !firstName) return { error: "All fields are required." };
-    if (password.length < 6) return { error: "Password must be at least 6 characters." };
+    // CLEANING FORMDATA
+    const email = emailRaw.replace(/\s+/g, "").toLowerCase();
+    const firstName = firstNameRaw.replace(/\s+/g, " ").trim();
+
+    // PASSWORD CHECKS
+    if (password !== confirmPassword) return { success: false, error: "Passwords do not match.", email, firstName, timestamp };
+    if (password.length < 8) return { success: false, error: "Password must be at least 8 characters long.", email, firstName, timestamp };
     
     try {
-        const existingUser = await db
-        .select()
-        .from(users)
-        .where(eq(users.email, email))
-        .limit(1);
-
-        if (existingUser.length > 0) return { error: "Account with this email already exists." };
+        // DOES USER EXISTS
+        const existingUserResult = await db.select().from(users).where(eq(users.email, email)).limit(1);
+        if (existingUserResult.length > 0) 
+            return { success: false, error: "An account with this email already exists.", email, firstName, timestamp };
         
         // HASHING PASSWORD
-        const salt = await bcrypt.genSalt(10);
-        const passwordHash = await bcrypt.hash(password, salt);
+        const passwordHash = await bcrypt.hash(password, 10);
         
-        // SAVING USER TO DB
-        const [newUser] = await db.insert(users).values({
-            email,
-            passwordHash,
-            firstName,
-        }).returning({ id: users.id });
-
-        // CREATING SESSION AFTER USER REGISTRATION
-        await createSession(newUser.id);
-    
-        return { success: true };
+        // CREATING NEW USER
+        const newUser = await db.insert(users).values({
+            firstName: firstName, 
+            email: email,  
+            passwordHash: passwordHash,
+        }).returning({ id: users.id }); 
+        
+        // SUCCESS
+        await createSession(newUser[0].id);    
+        return { success: true, message: "Account created successfully!" };
     } catch (error) {
         console.error("Registration error:", error);
-        return { error: "Something went wrong during registration." };
+        return { success: false, error: "An unexpected error occurred.", email, firstName, timestamp };
     }
 }
 
-export async function loginAction(prevState: any, formData: FormData) {
-    const email = formData.get("email") as string;
-    const password = formData.get("password") as string;
-    if (!email || !password) return { error: "Please provide both email and password." };
+
+export async function loginAction( prevState: ActionState, formData: FormData ): Promise<ActionState> {
+    const emailRaw = formData.get("email")?.toString() || "";
+    const password = formData.get("password")?.toString();
+
+    if (!emailRaw || !password) return { success: false, error: "Please provide both email and password.", email: emailRaw, timestamp: Date.now() }
     
     try {
-        const userResult = await db
-        .select()
-        .from(users)
-        .where(eq(users.email, email))
-        .limit(1);
-        
+        const email = emailRaw.trim().toLowerCase();
+        const userResult = await db.select().from(users).where(eq(users.email, email)).limit(1);
         const user = userResult[0];
-        // IF USER DOES NOT EXISTS
-        if (!user) return { error: "Invalid email or password." };
-        // IF EXISTS WE CHECK PASSWORD
+        if (!user) return { success: false, error: "Invalid email or password.", email, timestamp: Date.now() };
+    
+        // PASSWORD CHECK
         const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
-        if (!isPasswordValid) return { error: "Invalid email or password." };
-        
+        if (!isPasswordValid) return { success: false, error: "Invalid email or password.", email, timestamp: Date.now() };
+            
+        // SUCCESS
         await createSession(user.id);    
-        return { success: true };
+        return { success: true, message: "Logged in successfully" };
+
     } catch (error) {
-        console.error("Login error:", error);
-        return { error: "An unexpected error occurred." };
+        return { success: false, error: "An unexpected error occurred.", email: emailRaw, timestamp: Date.now() };
     }
 }
 
 // CREATING SESSION FUNCTION
 async function createSession(userId: string) {
-    // 7 DAYS
-    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 DAYS
     
     const sessionToken = await new SignJWT({ userId })
         .setProtectedHeader({ alg: "HS256" })

@@ -6,7 +6,6 @@ import { Brain, Clock, Flame, ChevronRight, CheckCircle, Sparkles, Layers, Targe
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-[#F5F5F7] font-sans selection:bg-indigo-500 selection:text-white">
-      
       {/* NAVBAR */}
       <nav className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-md z-50 border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">

@@ -20,6 +20,7 @@ export default async function DeckPage({ params }: { params: Params }) {
 
         return items
     },
+    staleTime: 1000 * 60 * 5,
   });
 
   return (

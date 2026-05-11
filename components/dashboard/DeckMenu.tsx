@@ -4,12 +4,16 @@ import { ChevronLeft, Plus } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createCardAction, getDeckItems } from '@/app/actions/queries';
 import { DeckMenuItem } from "./DeckMenuItem";
-import { useEditorStore } from "@/store/use-editor-store"; // Potrzebujemy dostępu do stanu
 import Button from "./ui/Button";
 
-export default function DeckMenu({ deckId }: { deckId: string }) {
-  const { setActiveCardId } = useEditorStore();
-  const queryClient = useQueryClient()
+type DeckMenuProps = {
+  deckId: string;
+  onCardSelect: (id: string) => void;
+  onNewCard: (id: string) => void;
+}
+
+export default function DeckMenu({ deckId, onCardSelect, onNewCard }: DeckMenuProps) {
+  const queryClient = useQueryClient();
 
   const { data: cards = [] } = useQuery({
     queryKey: ['deck-items', deckId],
@@ -21,36 +25,44 @@ export default function DeckMenu({ deckId }: { deckId: string }) {
     onSuccess: (result) => {
       if (result.success && result.data) {
         queryClient.invalidateQueries({ queryKey: ['deck-items', deckId] });
-        setActiveCardId(result.data.id);
+        onNewCard(result.data.id);
       }
     }
   });
 
   return (
-    <aside className="hidden lg:block w-80 max-w-80 flex-1 border-r min-h-full h-full bg-[#F2F2F2] shrink-0 flex-col gap-[0.5px] p-3 pb-16">
-      <div className="flex flex-row items-center justify-between mb-4">
+    <aside className="w-full h-full bg-white lg:bg-[#F2F2F2] border-r border-gray-100 lg:border-gray-200 flex flex-col overflow-hidden">
+      {/* HEADER */}
+      <div className="p-2 flex items-center justify-between shrink-0 bg-white lg:bg-[#F2F2F2] z-10">
         <Link
           href="/dashboard" 
-          className="flex items-center gap-1 text-blue-500 hover:text-blue-600 text-[13px] font-medium transition-colors"
+          className="text-gray-600 p-1 hover:bg-gray-200 rounded-lg"
         >
-          <ChevronLeft size={16} /> Back to Decks
+          <ChevronLeft size={22}  color="#2B7FFF"/> 
         </Link>
 
-        <Button 
-          variant="secondary" 
-          className="w-fit text-gray-600 px-2 py-1 hover:cursor-pointer"
+        <p className="text-[#2B2B2B] font-bold">Cards</p>
+
+        <button
+          className="text-gray-600 p-1 hover:bg-gray-200 rounded-lg"
           onClick={() => createMutation.mutate()}
-          isLoading={createMutation.isPending}
+          disabled={createMutation.isPending}
         >
-          {!createMutation.isPending && <Plus size={16} />}
-        </Button>
+          {!createMutation.isPending && <Plus size={20} color="#2B7FFF"/>}
+        </button>
       </div>
 
-      <div className="h-full flex flex-col gap-2 overflow-y-auto">
-        { cards.map((card: any) => <DeckMenuItem key={card.id} card={card}/> ) } 
-      </div>
+      <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-2 lg:p-3 flex flex-col gap-[0.5px]">
+        { cards.map((card: any) => (
+          <div key={card.id} onClick={() => onCardSelect(card.id)} className="shrink-0">
+            <DeckMenuItem card={card}/>
+          </div>
+        ))} 
 
-      {cards.length === 0 && !createMutation.isPending && ( <div className="text-center py-10 text-sm text-gray-400 font-medium">Add cards to deck.</div>)}
+        {cards.length === 0 && !createMutation.isPending && ( 
+          <div className="text-center py-10 text-sm text-gray-400 font-medium">No cards in this deck.</div>
+        )}
+      </div>
     </aside>
   )
 }

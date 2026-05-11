@@ -1,7 +1,5 @@
-import PrimaryEditorInput from './PrimaryEditorInput'
-import SectionHeader from './SectionHeader'
-import { Layers } from 'lucide-react'
 import { ReactNode } from 'react'
+import { PrimaryEditorInput } from './PrimaryEditorInput';
 
 const POS_OPTIONS = ["noun", "verb", "adjective", "adverb", "phrasal_verb", "idiom"];
 
@@ -15,34 +13,29 @@ type WordSectionProps = {
   actionButton?: ReactNode;
 }
 
-const WordSection = ({ wordValue, partOfSpeechValue, onWordChange, onPosChange, inputLabel = 'Word', showHeader = true, actionButton
-}: WordSectionProps) => {
+export const WordSection = ({ wordValue, partOfSpeechValue, onWordChange, onPosChange, inputLabel = 'Word', showHeader = true, actionButton }: WordSectionProps) => {
   return (
-    <div className="w-full flex flex-col">
-      <div className="flex flex-col xl:flex-row gap-4 w-full xl:items-end mb-12">
-        <div className="flex-1">
-          <PrimaryEditorInput 
-            label={inputLabel} 
-            value={wordValue || ""}
-            onChange={(e) => onWordChange(e.target.value)} 
-          />
-        </div>
-        
-        <div className="w-1/2 md:min-w-48 flex flex-col">
-          <label className="text-[13px] font-bold text-gray-400 uppercase tracking-wider mb-2">Type</label>
+    <div className="w-full flex flex-col xl:flex-row gap-4">
+      <PrimaryEditorInput
+        label={inputLabel} 
+        value={wordValue || ""}
+        onChange={(e) => onWordChange(e.target.value)} 
+      />
+      
+      <div className="w-full md:min-w-48 flex flex-col">
+        <label className="text-[13px] font-bold text-gray-400 uppercase tracking-wider mb-2">Type</label>
+        <div className='w-full flex flex-row  gap-4'>
           <select 
             value={partOfSpeechValue || "noun"} 
             onChange={(e) => onPosChange(e.target.value)} 
-            className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3.5 font-semibold text-gray-700 outline-none transition-all"
+            className="w-full text-[#333] font-semibold rounded-xl p-3 outline-none border-[0.5px] border-transparent bg-[#F2F2F2] focus:border-[#E1E1E1]"
           >
             {POS_OPTIONS.map(opt => <option key={opt} value={opt}>{opt.replace('_', ' ')}</option>)}
           </select>
+          
+          { actionButton && <div className="mb-px">{actionButton}</div> }
         </div>
-
-        { actionButton && <div className="mb-px">{actionButton}</div> }
       </div>
     </div>
   )
 }
-
-export default WordSection;

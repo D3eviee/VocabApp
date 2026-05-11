@@ -1,24 +1,26 @@
-import React from "react";
+import {InputHTMLAttributes } from 'react';
 
-interface InputFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
+interface FloatingInputProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string;
-  action?: React.ReactNode;
 }
 
-export default function InputField({ label, action, className, ...props }: InputFieldProps) {
+export const InputField = (({ label, id, className = '', ...props }: FloatingInputProps) => {
+    const inputId = id || `floating-input-${label.replace(/\s+/g, '-').toLowerCase()}`;
+
     return (
-        <div className="space-y-1.5">
-            <div className="flex justify-between items-center ml-1">
-                <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">
-                    {label}
-                </label>
-
-                {action && <div>{action}</div>}
-            </div>
-            <input
-                {...props}
-                className={`w-full bg-gray-50/50 border border-gray-200/60 rounded-xl px-4 py-3 text-[15px] font-medium focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50 outline-none transition-all placeholder:text-gray-400 ${className || ""}`}
-            />
-        </div>
+      <div className={`relative ${className} border-[0.5px] rounded-2xl border-[#86868b]`}>
+        <input
+          {...props}
+          id={inputId}
+          placeholder=" "
+          className="peer block w-full appearance-none bg-transparent px-4 pb-2 pt-6 text-[16px] text-gray-900 focus:outline-none focus:ring-0"
+        />
+        <label
+          htmlFor={inputId}
+          className="pointer-events-none absolute left-4 top-4 z-10 origin-left -translate-y-3 scale-75 transform text-gray-500 duration-200  peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:-translate-y-3 peer-focus:scale-75"
+        >{label}</label>
+      </div>
     );
-}
+  }
+);
+

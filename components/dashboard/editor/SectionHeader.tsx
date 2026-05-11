@@ -9,20 +9,20 @@ type SectionHeaderProps = {
   onAction?: () => void;
 }
 
-const SectionHeader = ({ title, icon, bgColor, buttonText, onAction }: SectionHeaderProps) => {
+const SectionHeader = ({ title, icon, bgColor, onAction }: SectionHeaderProps) => {
   return (
-    <div className="flex flex-row items-center justify-between w-full mb-6  border-gray-100">
-      <div className="flex items-center gap-3">
-        <div className={`p-1.5 ${bgColor} rounded-lg text-white`}>{icon}</div>
-        <h2 className="text-xl font-bold text-gray-900">{title}</h2>
+    <div className="w-full flex flex-row items-center justify-between">
+      <div className="flex items-center gap-2">
+        <div className={`p-1.5 rounded-xl text-white ${bgColor}`}>{icon}</div>
+        <h2 className="text-lg font-semibold text-[#111]">{title}</h2>
       </div>
 
-      {buttonText && onAction && (
+      {onAction && (
         <button 
           onClick={onAction} 
-          className="px-3 py-1.5 bg-white border border-gray-200 rounded-xl text-sm font-bold text-gray-700 hover:bg-gray-50 shadow-sm flex items-center gap-2 active:scale-95 transition-all"
+          className="p-2 hover:bg-gray-100 rounded-lg active:scale-95 transition-all hover:cursor-pointer"
         >
-          <Plus size={16} /> {buttonText}
+          <Plus size={18}  color="blue"/>
         </button>
       )}
     </div>

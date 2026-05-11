@@ -15,7 +15,6 @@ type StudyModeControlsProps = {
     deckId: string;
     order: number;
     front: string | null;
-    back: string | null;
     partOfSpeech: string | null;
     meanings: Meaning[];
     dateLabel: string | null;
@@ -47,37 +46,25 @@ const RATING_OPTIONS: RatingOption[] = [
   { type: 'easy', label: 'Easy', timeHint: '5 days' },
 ];
 
-const StudyModeControls = ({
-  deckId, 
-  setCurrentIndex, 
-  setIsFlipped, 
-  isFlipped, 
-  setIsFinished, 
-  currentIndex, 
-  currentCard, 
-  cardsAmount
-}: StudyModeControlsProps) => {
+const StudyModeControls = ({ deckId, setCurrentIndex, setIsFlipped, isFlipped, setIsFinished, currentIndex, currentCard, cardsAmount }: StudyModeControlsProps) => {
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationFn: ({ cardId, rating }: { cardId: string, rating: 'again' | 'hard' | 'good' | 'easy' }) => 
-      rateCardAction(cardId, rating),
+    mutationFn: ({ cardId, rating }: { cardId: string, rating: 'again' | 'hard' | 'good' | 'easy' }) => rateCardAction(cardId, rating),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['deck-items', deckId] });
 
       setIsFlipped(false);
-      if (currentIndex < cardsAmount - 1) {
-        setCurrentIndex(prev => prev + 1);
-      } else {
-        setIsFinished(true);
-      }
+
+      if (currentIndex < cardsAmount - 1) setCurrentIndex(prev => prev + 1);
+      else setIsFinished(true);
     }
   });
 
   const handleRateCard = (rating: 'again' | 'hard' | 'good' | 'easy') => mutation.mutate({ cardId: currentCard.id, rating });
 
   return (
-    <div className="mt-2 mb-8 flex items-center justify-center w-full max-w-2xl">
+    <div className="mt-2 mb-8 flex flex-row items-center justify-center w-full max-w-2xl mx-auto">
       {!isFlipped ? (
         <Button
           onClick={() => setIsFlipped(true)}

@@ -35,12 +35,12 @@ export async function createDeckAction(prevState: CreateDeckState, formData: For
     return { error: "Something went wrong" };
 }
 
-export async function createRoadMapAction(formData: FormData) {
+export async function createStoryboardAction(formData: FormData) {
     const user = await getCurrentUser();
-    if (!user) return { error: "Unauthorized" };
+    if (!user) return { error: "User unauthorized. Log in." };
 
     const title = formData.get("title") as string;
-    if (!title || title.length < 2) return { error: "Title is too short" };
+    if (!title || title.length < 2) return { error: "The name of your storyboard is too short." };
     
     try {
         const [newDeck] = await db
@@ -49,10 +49,9 @@ export async function createRoadMapAction(formData: FormData) {
             .returning({ id: decks.id });
             
         revalidatePath("/dashboard");
-        // Zwracamy deckId
         return { success: true, deckId: newDeck.id }; 
     } catch (error) {
         console.error("Database error:", error);
-        return { error: "Failed to create roadmap in database" };
+        return { error: "Failed to create new roadmap due to server error." };
     }
 }

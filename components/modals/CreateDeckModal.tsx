@@ -3,8 +3,8 @@
 import { useActionState, useEffect } from "react";
 import { useRouter } from "next/navigation"; // Używamy routera do nawigacji
 import BaseModal from "./BaseModal";
-import InputField from "../auth/InputField";
-import SubmitButton from "../auth/SubmitButton";
+import { InputField } from "../auth/InputField";
+import {SubmitButton} from "../auth/SubmitButton";
 import { createDeckAction } from "@/app/actions/decks";
 import { useModal } from "@/store/modal-store";
 
