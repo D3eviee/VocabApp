@@ -41,7 +41,7 @@ export default function Navbar() {
   return (
     <>
       <div 
-        className={`inset-0 z-60 transition-all duration-500 ease-in-out ${
+        className={`inset-0 z-60 transition-all duration-500 ease-in-out shadow-2xl ${
           isMenuOpen ? 'opacity-100 visible backdrop-blur-md' : 'opacity-0 invisible pointer-events-none backdrop-blur-none' }`} 
         onClick={closeAllMenus}
       />
@@ -52,7 +52,7 @@ export default function Navbar() {
           isMenuOpen ?? "backdrop-blur-xl"
         }`}
       >
-        <div className="max-w-5xl me-auto ms-auto px-6 h-14 flex items-center justify-between relative">
+        <div className="max-w-5xl me-auto ms-auto px-4 h-14 flex items-center justify-between relative">
           <Link href="/dashboard" className="flex items-center gap-2.5">
             <div className="bg-gray-900 p-1 rounded-md text-white">
               <BookMarked size={18} strokeWidth={2.5} />

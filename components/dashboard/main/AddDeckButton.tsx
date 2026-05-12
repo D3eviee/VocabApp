@@ -20,7 +20,7 @@ export const AddDeckButton = () => {
         <div 
             ref={menuRef} 
             onClick={() => !isOpen && setIsOpen(true)}
-            className={`fixed bottom-6 right-6 lg:hidden bg-[#111] overflow-hidden shadow-[0_8px_30px_rgba(4,7,17,0.25)] transition-all duration-300 ease-in-out flex flex-col justify-center ${isOpen ? 'w-63 h-46 rounded-4xl cursor-default p-4' : 'w-15 h-15 rounded-3xl cursor-pointer items-center'}`}
+            className={`fixed bottom-6 right-6 md:hidden bg-[#111] overflow-hidden shadow-[0_8px_30px_rgba(4,7,17,0.25)] transition-all duration-300 ease-in-out flex flex-col justify-center ${isOpen ? 'w-63 h-46 rounded-4xl cursor-default p-4' : 'w-15 h-15 rounded-3xl cursor-pointer items-center'}`}
         >
             {isOpen ? (
                 <div className="w-full h-full flex flex-col justify-between animate-in fade-in duration-300 delay-75">
