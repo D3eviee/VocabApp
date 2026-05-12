@@ -1,53 +1,52 @@
 "use client";
-import { useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useModal } from "@/store/modal-store";
 import { InputField } from "../auth/InputField";
 import { SubmitButton } from "../auth/SubmitButton";
-import BaseModal from "./BaseModal";
+import { BaseModal } from "./BaseModal";
 import { createStoryboardAction } from "@/app/actions/decks";
+import { CreateDeckState } from "@/lib/types";
+
+const initialState: CreateDeckState = { success: false};
 
 export default function CreateRoadmapModal() {
   const { isOpen, type, onClose } = useModal();
   const router = useRouter();
-  const [isPending, setIsPending] = useState(false);
+  const [state, formAction, isPending] = useActionState(createStoryboardAction, initialState);
 
-  const handleSubmit = async (formData: FormData) => {
-    setIsPending(true);
-    try {
-      const result = await createStoryboardAction(formData);
-    
-      if (result.success && result.deckId) {
-        onClose(); 
-        router.push(`/dashboard/storyboard/${result.deckId}/edit`);
-      } else {
-        alert(result.error || "Wystąpił błąd podczas tworzenia.");
-      }
-    } catch (error) {
-      console.error(error);
-      alert("Wystąpił błąd.");
-    } finally {
-      setIsPending(false);
+  useEffect(() => {
+    if (state.success && state.deckId) {
+      onClose(); 
+      router.push(`/dashboard/storyboard/${state.deckId}/edit`);
     }
-  };
+  }, [state.success, state.deckId, onClose, router]);
 
   return (
     <BaseModal 
-      title="Create New Roadmap" 
+      title="New Storyboard" 
       isOpen={isOpen} 
       type={type} 
       targetType="createRoadmap"
     >
-      <form action={handleSubmit} className="flex flex-col gap-6">
+      <form action={formAction} className="flex flex-col">
         <InputField
-          label="Roadmap Title"
+          key={isOpen ? "modal-open" : "modal-closed"} 
+          label="Storyboard Title"
           name="title" 
-          placeholder="e.g. Spanish Basics" 
           autoFocus
           required 
           disabled={isPending}
+          defaultValue={state?.title || ""}
         />
-        <SubmitButton isPending={isPending}>
+
+        {state?.error && (
+          <p className="text-[13px] font-medium text-red-500 text-center animate-in fade-in slide-in-from-bottom-1">{state.error}</p>
+        )}
+
+        <SubmitButton 
+          isPending={isPending} 
+        >
           {isPending ? "Creating..." : "Create"}
         </SubmitButton>
       </form>

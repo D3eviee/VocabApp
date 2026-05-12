@@ -4,3 +4,10 @@ export type DeckThumbtail = {
     type: "classic" | "storytelling";
     dueCardsCount: number
 }
+
+export type CreateDeckState = {
+  success: boolean;
+  error?: string;
+  title?: string;
+  deckId?: string;
+};

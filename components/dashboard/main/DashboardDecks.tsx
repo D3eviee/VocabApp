@@ -13,7 +13,7 @@ export const DashboardDecks = async () =>  {
         <div className='w-full flex flex-col gap-8'>
             {classic.length > 0 && (
                 <div className='flex flex-col'>
-                    <h2 className="text-2xl md:text-xl font-semibold mb-4">Decks</h2>
+                    <h2 className="text-3xl font-semibold mb-4 text-[#111]">Decks</h2>
                     <div className="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                         {classic.map((deck) => <FlashcardDeckThumbnail key={deck.id} deck={deck} />)}
                     </div>
@@ -22,7 +22,7 @@ export const DashboardDecks = async () =>  {
             
             {storyboards.length > 0 && (
                 <div className='flex flex-col'>
-                    <h2 className="text-2xl md:text-xl font-semibold mb-4">Storyboards</h2>
+                    <h2 className="text-3xl font-semibold mb-4 text-[#111]">Storyboards</h2>
                     <div className="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                         {storyboards.map((deck) => <StoryboardDeckThumbnail key={deck.id} deck={deck} />)}
                     </div>
