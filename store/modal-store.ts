@@ -1,17 +1,23 @@
 import { create } from 'zustand';
 
-export type ModalType = "createDeck" | "createRoadmap" | "deleteDeck" | "editProfile";
+export type ModalType = "createDeck" | "createRoadmap" | "deleteDeckConfirm"
+
+interface ModalData {
+  deckId?: string;
+}
 
 interface ModalStore {
   type: ModalType | null;
   isOpen: boolean;
-  onOpen: (type: ModalType) => void;
+  data: ModalData;
+  onOpen: (type: ModalType, data?: ModalData) => void;
   onClose: () => void;
 }
 
 export const useModal = create<ModalStore>((set) => ({
   type: null,
   isOpen: false,
-  onOpen: (type) => set({ isOpen: true, type }),
-  onClose: () => set({ isOpen: false, type: null }),
+  data: {},
+  onOpen: (type, data = {}) => set({ isOpen: true, type, data }),
+  onClose: () => set({ isOpen: false, type: null, data: {} }),
 }));

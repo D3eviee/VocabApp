@@ -1,5 +1,5 @@
-import { FlashcardDeckThumbnail } from '../FlashcardDeckThumbnail';
-import { StoryboardDeckThumbnail } from '../StoryboardDeckThumbnail';
+import { FlashcardDeckThumbnail } from './FlashcardDeckThumbnail';
+import { StoryboardDeckThumbnail } from './StoryboardDeckThumbnail';
 import { getUserDecks } from '@/server/queries/decks'; 
 
 export const DashboardDecks = async () =>  {  

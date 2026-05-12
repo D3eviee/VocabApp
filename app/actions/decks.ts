@@ -3,6 +3,8 @@ import { getCurrentUser } from "@/lib/auth";
 import { CreateDeckState } from "@/lib/types";
 import { db } from "@/server/db";
 import { decks } from "@/server/schema";
+import { revalidatePath } from "next/cache";
+import { eq, and } from "drizzle-orm";
 
 export async function createDeckAction(_prevState: CreateDeckState, formData: FormData ): Promise<CreateDeckState> {
   const titleRaw = formData.get("title")?.toString() || "";
@@ -41,5 +43,26 @@ export async function createStoryboardAction( _prevState: CreateDeckState, formD
       error: "An unexpected error occurred while creating your storyboard.", 
       title: titleRaw,
     };
+  }
+}
+
+export async function deleteDeckAction(deckId: string) {
+  try {
+    const user = await getCurrentUser();
+    if (!user) return { success: false, error: "Logged in to delete a deck." };
+    
+    await db.delete(decks)
+      .where(
+        and(
+          eq(decks.id, deckId),
+          eq(decks.userId, user.id)
+        )
+      );
+
+    revalidatePath("/dashboard");
+    return { success: true };
+  } catch (error) {
+    console.error("Problem occured while deleting deck:", error);
+    return { success: false, error: "An unexpected error occurred while deleting." };
   }
 }
