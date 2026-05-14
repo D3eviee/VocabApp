@@ -9,14 +9,14 @@ const badgeConfig: Record<string, { label: string; style: string }> = {
   conjunction:  { label: "Conjunction", style: "bg-indigo-50 text-indigo-700 border-indigo-200" },
   pronoun:      { label: "Pronoun", style: "bg-cyan-50 text-cyan-700 border-cyan-200" },
   interjection: { label: "Interjection", style: "bg-orange-50 text-orange-700 border-orange-200" },
-  unknown:      { label: "Draft", style: "bg-gray-50 text-gray-500 border-gray-200" },
+  draft:      { label: "Draft", style: "bg-gray-50 text-gray-500 border-gray-200" },
 };
 
-export default function DeckMenuItemBadge({ type }: {type: string}) {
-    const config = badgeConfig[type?.toLowerCase() || "unknown"];
-    
+export const DeckMenuItemBadge = ({ type }: {type: string}) => {
+    const config = badgeConfig[type];
+
     return (
-        <span className={`shrink-0 w-fit inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold tracking-wider uppercase border ${config.style}`}>
+        <span className={`shrink-0 w-fit inline-flex items-center px-2 rounded-md text-[10px] tracking-wide uppercase border-[0.5px] shadow-xs font-medium ${config.style}`}>
             {config.label}
         </span>
     );

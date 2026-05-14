@@ -1,7 +1,16 @@
 import { ReactNode } from 'react'
 import { PrimaryEditorInput } from './PrimaryEditorInput';
 
-const POS_OPTIONS = ["noun", "verb", "adjective", "adverb", "phrasal_verb", "idiom"];
+const POS_OPTIONS = [
+  {label:"Noun",value: "noun" },
+  {label:"Verb",value: "verb"},
+  {label:"Adverb",value: "adverb"},
+  {label:"Adjective",value: "adjective"},
+  {label:"Phrasal verb",value: "phrasal_verb"},
+  {label:"Interjection",value: "interjection"},
+  {label:"Draft",value: "draft"},
+]
+
 
 type WordSectionProps = {
   wordValue: string;
@@ -26,11 +35,11 @@ export const WordSection = ({ wordValue, partOfSpeechValue, onWordChange, onPosC
         <label className="text-[13px] font-bold text-gray-400 uppercase tracking-wider mb-2">Type</label>
         <div className='w-full flex flex-row  gap-4'>
           <select 
-            value={partOfSpeechValue || "noun"} 
+            value={partOfSpeechValue || "draft"} 
             onChange={(e) => onPosChange(e.target.value)} 
             className="w-full text-[#333] font-semibold rounded-xl p-3 outline-none border-[0.5px] border-transparent bg-[#F2F2F2] focus:border-[#E1E1E1]"
           >
-            {POS_OPTIONS.map(opt => <option key={opt} value={opt}>{opt.replace('_', ' ')}</option>)}
+            {POS_OPTIONS.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}
           </select>
           
           { actionButton && <div className="mb-px">{actionButton}</div> }

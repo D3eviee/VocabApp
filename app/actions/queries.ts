@@ -1,17 +1,34 @@
 'use server'
 import { db } from "@/server/db";
-import { deckItems, decks, users } from "@/server/schema";
-import { eq, asc, lte, sql, desc, and} from "drizzle-orm";
+import { deckItems, users, decks } from "@/server/schema";
+import { eq, asc, lte, desc, and, ne} from "drizzle-orm";
 import { addDays, isToday, isYesterday } from "date-fns";
 import { getCurrentUser } from "@/lib/auth";
 
-// GETTING ALL CARDS FROM THE DECK
-export async function getDeckItems(deckId: string) {
-  return await db.select()
-    .from(deckItems)
-    .where(eq(deckItems.deckId, deckId))
-    .orderBy(asc(deckItems.order));
+
+// GET FLASHCARD DECK ITEMS
+export async function getFlashcardDeckItems(deckId: string) {
+  try {
+    // AUTH
+    const user = await getCurrentUser();
+    if (!user) throw new Error("Unauthorized");
+
+    const items = await db.select()
+      .from(deckItems)
+      .where(
+        and(
+          eq(deckItems.deckId, deckId),
+          ne(deckItems.partOfSpeech, "draft")
+        )) 
+      .orderBy(desc(deckItems.createdAt));
+
+    return items;
+  } catch (error) {
+    console.error("Failed to fetch flashcards:", error);
+    return [];
+  }
 }
+
 
 // 2. CARD DATA UPDATE
 export async function updateCardAction(id: string | undefined, data: any) {
@@ -70,6 +87,32 @@ export async function deleteCardAction(id: string | undefined) {
   if (!id) return { success: false, error: "No ID provided" };
 
   try {
+    // AUTH
+    const user = await getCurrentUser();
+    if (!user || !user.id) return { success: false, error: "Unauthorized" };
+
+    // WE GET CART TO CHECK IS THIS USER'S CARD
+    const [cardToVerify] = await db
+      .select({ deckId: deckItems.deckId })
+      .from(deckItems)
+      .where(eq(deckItems.id, id));
+
+    if (!cardToVerify) return { success: false, error: "Card not found" };
+
+    const [deck] = await db
+      .select({ id: decks.id })
+      .from(decks)
+      .where(
+        and(
+          eq(decks.id, cardToVerify.deckId),
+          eq(decks.userId, user.id)
+        )
+      );
+
+    if (!deck) return { success: false, error: "Forbidden: You don't own this card" };
+    
+
+    // DELETING
     await db
       .delete(deckItems)
       .where(eq(deckItems.id, id));
@@ -191,7 +234,8 @@ export async function getDueDeckItems(deckId: string) {
     .where(
       and(
         eq(deckItems.deckId, deckId),
-        lte(deckItems.dueDate, today) 
+        lte(deckItems.dueDate, today) ,
+        ne(deckItems.partOfSpeech, "draft")
       )
     )
     .orderBy(asc(deckItems.order));

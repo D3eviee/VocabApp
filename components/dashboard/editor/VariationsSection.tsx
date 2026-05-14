@@ -1,7 +1,7 @@
 import { useEditorStore } from '@/store/use-editor-store';
-import SectionHeader from './SectionHeader'
+import { SectionHeader } from './SectionHeader'
 import { BookOpen, Trash2 } from 'lucide-react'
-import MeaningsSection from './MeaningsSection';
+import { MeaningsSection } from './MeaningsSection';
 import { WordSection } from './WordSection';
 
 const VariationsSection = () => {

@@ -1,5 +1,5 @@
 import { getCurrentUser } from "@/lib/auth";
-import { eq, desc, and, lte, count } from "drizzle-orm";
+import { eq, desc, and, lte, count, ne } from "drizzle-orm";
 import { db } from "../db";
 import { decks, deckItems } from "../schema";
 
@@ -22,11 +22,15 @@ export async function getUserDecks() {
     .leftJoin(
       deckItems,
       and(
-        eq(decks.id, deckItems.deckId), 
+        eq(decks.id, deckItems.deckId),
+        ne(deckItems.partOfSpeech, "draft"), 
         lte(deckItems.dueDate, today)
       )
     )
-    .where(eq(decks.userId, user.id))
+    .where(
+      and(
+        eq(decks.userId, user.id),
+      ))
     .groupBy(decks.id) 
     .orderBy(desc(decks.createdAt));
 }

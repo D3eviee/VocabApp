@@ -1,6 +1,6 @@
 import { db } from "@/server/db";
 import { deckItems, decks } from "@/server/schema";
-import { eq, lte, sql, and} from "drizzle-orm";
+import { eq, lte, sql, and, ne} from "drizzle-orm";
 import { getCurrentUser } from "@/lib/auth";
 
 // CALCULATING USER PERSONAL STATS
@@ -20,6 +20,7 @@ export async function getUserStats() {
         and(
           eq(decks.userId, user.id),
           eq(decks.type, "classic"),
+          ne(deckItems.partOfSpeech, "draft"),
           lte(deckItems.dueDate, today) 
         )
       );

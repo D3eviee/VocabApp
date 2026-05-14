@@ -13,7 +13,7 @@ type MeaningsSectionProps = {
   variant?: 'main' | 'variation';
 }
 
-const MeaningsSection = ({ translationValue, examples, onTranslationChange,onRemoveMeaning, onAddExample, onExampleChange, onRemoveExample, variant = 'main' }: MeaningsSectionProps) =>{
+export const MeaningsSection = ({ translationValue, examples, onTranslationChange,onRemoveMeaning, onAddExample, onExampleChange, onRemoveExample, variant = 'main' }: MeaningsSectionProps) =>{
   return (
     <div className="h-fit w-full border-[0.5px] border-dashed border-[#A2A2A2] p-4 rounded-2xl" >
       <div className='w-full flex gap-4 items-end mb-4'>
@@ -67,5 +67,3 @@ const MeaningsSection = ({ translationValue, examples, onTranslationChange,onRem
     </div>
   );
 }
-
-export default MeaningsSection;

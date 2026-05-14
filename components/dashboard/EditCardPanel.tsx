@@ -2,51 +2,61 @@
 import { useEffect } from 'react';
 import { useEditorStore } from '@/store/use-editor-store';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { deleteCardAction, getDeckItems, updateCardAction, createCardAction } from '@/app/actions/queries';
-import MeaningsSection from './editor/MeaningsSection';
+import { deleteCardAction, getFlashcardDeckItems, updateCardAction, createCardAction } from '@/app/actions/queries';
 import VariationsSection from './editor/VariationsSection';
-import SectionHeader from './editor/SectionHeader';
-import { BookOpen, Layers, Save, Trash2, ChevronLeft, Plus } from 'lucide-react';
+import { SectionHeader } from './editor/SectionHeader';
+import { BookOpen, Layers, Save, Trash2, ChevronLeft, Plus, Loader2 } from 'lucide-react';
 import { WordSection } from './editor/WordSection';
+import { MeaningsSection } from './editor/MeaningsSection';
 
-export default function EditCardPanel({ deckId, onBack }: { deckId: string, onBack: () => void }) {
-  const {setActiveCardId, activeCardId, formData, addMeaning, addVariation, updateMainField, setFormData, updateMeaningField, removeMeaning, addMeaningExample, updateMeaningExample, removeMeaningExample} = useEditorStore();
+export const EditCardPanel = ({ deckId, onBack }: { deckId: string, onBack: () => void }) => {
   const queryClient = useQueryClient();
+
+  const {
+    setActiveCardId, activeCardId, formData, addMeaning, addVariation, 
+    updateMainField, setFormData, updateMeaningField, removeMeaning, 
+    addMeaningExample, updateMeaningExample, removeMeaningExample
+  } = useEditorStore();
+  
+  
   const { data: cards = [] } = useQuery({ 
-      queryKey: ['deck-items', deckId], 
-      queryFn: () => getDeckItems(deckId), 
+      queryKey: ['deck-flashcards-items', deckId], 
+      queryFn: () => getFlashcardDeckItems(deckId), 
       refetchOnWindowFocus: false,
-      staleTime: 1000* 60 * 5 
+      staleTime: 1000 * 60 * 5 
   });
 
+
+  // UPDATE CARD 
   const mutation = useMutation({
     mutationFn: () => updateCardAction(formData?.id, formData),
     onSuccess: (result) => {
       if (result?.success) {
-        queryClient.invalidateQueries({ queryKey: ['deck-items', deckId] });
+        queryClient.invalidateQueries({ queryKey: ['deck-flashcards-items', deckId] });
         if (window.innerWidth < 1024) onBack(); 
       }
     },
   });
 
+  // DELETE NEW CARD FORM TOOLBAR
   const deleteMutation = useMutation({
     mutationFn: () => deleteCardAction(formData?.id),
     onSuccess: (result) => {
       if (result?.success) {
-        queryClient.invalidateQueries({ queryKey: ['deck-items', deckId] });
+        queryClient.invalidateQueries({ queryKey: ['deck-flashcards-items', deckId] });
         setActiveCardId(null); 
         onBack();
       }
     },
   });
 
-  // DODANO: Mutacja do tworzenia nowej karty bezpośrednio z widoku edytora
+  // ADD NEW CARD FORM TOOLBAR
   const createMutation = useMutation({
     mutationFn: () => createCardAction(deckId),
     onSuccess: (result) => {
       if (result.success && result.data) {
-        queryClient.invalidateQueries({ queryKey: ['deck-items', deckId] });
-        setActiveCardId(result.data.id); // Od razu przełącza edytor na nową kartę!
+        queryClient.invalidateQueries({ queryKey: ['deck-flashcards-items', deckId] });
+        setActiveCardId(result.data.id);
       }
     }
   });
@@ -71,29 +81,56 @@ export default function EditCardPanel({ deckId, onBack }: { deckId: string, onBa
   if (!formData) return (<div className="flex-1 flex items-center justify-center text-gray-400 font-medium bg-white lg:bg-transparent h-full">Wybierz fiszkę...</div>)
     
   return (
-    <main className="relative flex-1 flex flex-col h-full overflow-y-auto bg-white lg:bg-transparent pb-24 custom-scrollbar">
-      {/* HEADER MOBILE */}
-      <div className="lg:hidden sticky border-b-[0.5px] top-0 p-2 flex items-center justify-between shrink-0 bg-white lg:bg-[#F2F2F2] z-10">
-        <button 
-          onClick={onBack}
-          className="text-gray-600 p-1 hover:bg-gray-100 rounded-lg flex items-center gap-1 transition-colors"
-        >
-          <ChevronLeft size={24} color="#2B7FFF" /> 
-        </button>
+    <main className="relative flex-1 flex flex-col h-full overflow-y-auto bg-white lg:bg-transparent">
+      <div className="sticky top-0 z-20 flex items-center justify-between px-4 py-3 shrink-0 bg-white/90 lg:bg-[#F5F5F7]/90 backdrop-blur-md border-b border-gray-200/60">
+        <div className="flex items-center gap-2">
+          <button 
+            onClick={onBack}
+            className="lg:hidden text-gray-600 p-1.5 hover:bg-gray-200 rounded-lg flex items-center transition-colors"
+          >
+            <ChevronLeft size={24} color="#2B7FFF" /> 
+          </button>
+          <span className="hidden lg:block text-[#2B2B2B] font-bold text-sm ml-2">Edit Card</span>
+        </div>
 
-        <button
-          className="text-gray-600 p-2 hover:bg-gray-100 rounded-lg transition-colors"
-          onClick={() => createMutation.mutate()}
-          disabled={createMutation.isPending}
-        >
-          {!createMutation.isPending ? <Plus size={24} color="#2B7FFF"/> : <span className="text-[#2B7FFF] text-sm px-1 font-semibold">...</span>}
-        </button>
+        {/* Prawa Strona: Akcje */}
+        <div className="flex items-center gap-1 sm:gap-2">
+          {/* Usuwanie */}
+          <button
+            onClick={() => deleteMutation.mutate()}
+            disabled={deleteMutation.isPending}
+            className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 hover:cursor-pointer"
+            title="Delete card"
+          >
+            {deleteMutation.isPending ? <Loader2 size={20} className="animate-spin" /> : <Trash2 size={20} />}
+          </button>
+
+          {/* Nowa Fiszka */}
+          <button
+            onClick={() => createMutation.mutate()}
+            disabled={createMutation.isPending}
+            className="p-2 text-gray-400 hover:text-[#2B7FFF] hover:bg-blue-50 rounded-lg transition-colors disabled:opacity-50 hover:cursor-pointer"
+            title="Create new card"
+          >
+            {createMutation.isPending ? <Loader2 size={20} className="animate-spin" /> : <Plus size={20} />}
+          </button>
+
+          {/* Zapisz */}
+          <button
+            onClick={() => mutation.mutate()}
+            disabled={mutation.isPending}
+            className="flex items-center gap-2 px-4 py-2 ml-1 sm:ml-2 bg-[#2B7FFF] text-white text-sm font-semibold rounded-xl hover:bg-blue-600 active:scale-95 transition-all disabled:opacity-50 hover:cursor-pointer"
+          >
+            {mutation.isPending ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+            <span className="hidden sm:inline">{mutation.isPending ? "Saving..." : "Save"}</span>
+          </button>
+        </div>
       </div>
 
       {/* FORM */}
-      <div className="flex flex-col xl:flex-row flex-1">
+      <div className="flex flex-col xl:flex-row flex-1 pb-12">
         <div className="flex-1 px-4 md:px-8 flex flex-col mt-6">
-          <div className='p-4 bg-gray-50 rounded-3xl mb-6 border'>
+          <div className='p-4 bg-gray-50 rounded-3xl mb-6 border border-gray-200'>
             <WordSection
               wordValue={formData.front}
               partOfSpeechValue={formData.partOfSpeech as string}
@@ -103,7 +140,7 @@ export default function EditCardPanel({ deckId, onBack }: { deckId: string, onBa
           </div>
           
           
-          <div className='p-4 bg-gray-50 rounded-3xl border'>
+           <div className='p-4 bg-gray-50 rounded-3xl border border-gray-200'>
             <SectionHeader 
               title="Meanings" 
               icon={<BookOpen size={16} strokeWidth={2} />} 
@@ -124,9 +161,9 @@ export default function EditCardPanel({ deckId, onBack }: { deckId: string, onBa
             </div>
           </div>
         </div>
-          
-        <div className="mt-6 flex-1 px-4 flex flex-col">
-          <div className='p-4 bg-gray-50 rounded-3xl border'>
+
+        <div className="mt-6 flex-1 px-4 md:px-8 xl:px-4 flex flex-col">
+          <div className='p-4 bg-gray-50 rounded-3xl border border-gray-200'>
             <SectionHeader 
               title="Variations" 
               icon={<Layers size={16} strokeWidth={2.5}/>} 
@@ -136,27 +173,8 @@ export default function EditCardPanel({ deckId, onBack }: { deckId: string, onBa
             />
             <VariationsSection/>
           </div>
-        </div>   
+        </div> 
       </div>
-
-      {/* DOLNY PASEK Z PRZYCISKAMI */}
-      {/* <div className="fixed bottom-0 left-0 right-0 lg:absolute lg:bottom-4 lg:left-8 lg:right-8 flex items-center justify-center gap-3 z-50 p-4 lg:p-0 bg-white/90 lg:bg-transparent backdrop-blur-md lg:backdrop-blur-none border-t border-gray-100 lg:border-none">
-        <button
-          className="flex-1 lg:flex-none justify-center flex items-center gap-2 px-6 py-3 lg:py-2 rounded-2xl font-semibold bg-white text-gray-600 border border-gray-200 shadow-sm active:scale-95 transition-all"
-          onClick={() => deleteMutation.mutate()} 
-        >
-          <Trash2 size={18} strokeWidth={2} /> Delete
-        </button>
-
-        <button
-          className="flex-1 lg:flex-none justify-center flex items-center gap-2 px-6 py-3 lg:py-2 rounded-2xl font-semibold bg-[#18181B] text-white shadow-sm border border-[#27272A] active:scale-95 transition-all"
-          onClick={() => mutation.mutate()} 
-          disabled={mutation.isPending}
-        >
-          {!mutation.isPending && <Save size={18} strokeWidth={2} />}
-          {mutation.isPending ? "Saving..." : "Save"}
-        </button>
-      </div> */}
     </main>
   );
 }
