@@ -38,7 +38,7 @@ export const StudyModeControlsButton = ({ type, label, timeHint, onClick, disabl
     <button 
       onClick={onClick}
       disabled={disabled}
-      className={`w-32 flex flex-col items-center py-2 rounded-2xl bg-white border border-gray-100 shadow-sm transition-all active:scale-95 group disabled:opacity-50 disabled:pointer-events-none ${styles.button}`}
+      className={`w-32 flex flex-col items-center py-2 rounded-2xl bg-white border border-gray-100 shadow-sm transition-all active:scale-95 group disabled:opacity-50 disabled:pointer-events-none hover:cursor-pointer ${styles.button}`}
     >
       <span className={`text-sm font-bold text-[#333] ${styles.label}`}>{label}</span>
       <span className={`text-xs font-medium text-[#999] ${styles.timeHint}`}>{timeHint}

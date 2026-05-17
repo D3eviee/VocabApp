@@ -1,21 +1,24 @@
 import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query';
 import StudyMode from "@/components/dashboard/study/StudyMode";
-import { getDueDeckItems } from "@/app/actions/queries";
+import { getDeckTitleById, getDueDeckItems } from "@/app/actions/queries";
 
 type Params = Promise<{ id: string }>;
 
 export default async function StudyPage({ params }: { params: Params }) {
-  const { id } = await params;
   const queryClient = new QueryClient();
+  const { id } = await params;
 
-  await queryClient.prefetchQuery({
-    queryKey: ['deck-items-due', id],
-    queryFn: async () => getDueDeckItems(id)
-  });
+  const [_, deck] = await Promise.all([
+    queryClient.prefetchQuery({
+      queryKey: ['deck-items-due', id],
+      queryFn: () => getDueDeckItems(id),
+    }),
+    getDeckTitleById(id)
+  ]);
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <StudyMode deckId={id} />
+      <StudyMode deckId={id} deckTitle={deck?.title || "Study"}/>
     </HydrationBoundary>
   );
 }

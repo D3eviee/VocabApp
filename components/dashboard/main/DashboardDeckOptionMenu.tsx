@@ -1,15 +1,22 @@
 "use client";
 import { useState } from "react";
-import { MoreVertical, Trash2 } from "lucide-react";
+import { MoreVertical, Trash2, RotateCcw } from "lucide-react";
 import { useModal } from "@/store/modal-store"; // Importujemy Zustanda
 
 export const DashboardDeckOptionMenu = ({ deckId }: { deckId: string }) => {
     const [isOpen, setIsOpen] = useState(false);
     const { onOpen } = useModal();
 
-    const handleDeleteClick = () => {
+    const handleDeleteClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
         setIsOpen(false);
         onOpen("deleteDeckConfirm", { deckId }); 
+    };
+
+    const handleResetClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        setIsOpen(false);
+        onOpen("resetDeckConfirm", { deckId }); 
     };
 
     return (
@@ -28,6 +35,13 @@ export const DashboardDeckOptionMenu = ({ deckId }: { deckId: string }) => {
                     
                     {/* MENU */}
                     <div className="absolute inset-shadow-2xs right-7 top-0 md:right-2 md:top-7 w-38.5 md:w-32.5 bg-white rounded-xl shadow-lg border-[0.5px] border-[#F2F2F2] z-50 overflow-hidden ">
+                        <button 
+                            onClick={handleResetClick}
+                            className="w-full flex items-center gap-2 px-4 py-3 text-sm text-[#494949] transition-colors font-medium hover:bg-[#F2F2F2] hover:cursor-pointer border-b border-gray-100"
+                        >
+                            <RotateCcw size={16} strokeWidth={2} />
+                            Reset
+                        </button>
                         <button 
                             onClick={handleDeleteClick}
                             className="w-full flex items-center gap-2 px-4 py-3 text-sm text-red-600 transition-colors font-medium hover:bg-[#F2F2F2] hover:cursor-pointer"

@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useEditorStore } from '@/store/use-editor-store';
-import { createStorytelingCardAction, getDeckItems, reorderStoryPartsAction } from '@/app/actions/queries';
+import { createStorytelingCardAction, getFlashcardDeckItems, reorderStoryPartsAction } from '@/app/actions/queries';
 import { Plus, AlignLeft, ChevronLeft } from 'lucide-react';
 import Link from 'next/link';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
@@ -15,7 +15,7 @@ export default function StoryboardMenu({ storyboardId }: { storyboardId: string 
 
   const { data: storyParts = [], isLoading } = useQuery({
     queryKey: ['story-items', storyboardId],
-    queryFn: () => getDeckItems(storyboardId),
+    queryFn: () => getFlashcardDeckItems(storyboardId),
   });
 
   // Lokalny stan dla gładkich animacji DND

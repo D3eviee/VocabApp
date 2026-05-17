@@ -7,7 +7,7 @@ import { DashboardDeckOptionMenu } from "./DashboardDeckOptionMenu";
 export const FlashcardDeckThumbnail = ({deck}:{deck: DeckThumbtail}) => {
     const { id, title } = deck
     return (
-        <div className="relative w-full bg-white rounded-4xl border border-gray-200 p-6 flex flex-col hover:border-gray-300 transition-colors">
+        <div className="relative w-full bg-white rounded-4xl outline-2 outline-[#EFEEF4] p-6 flex flex-col hover:outline-[#D4D4D4] hover:cursor-pointer transition-colors">
             <h3 className="h-15 w-[90%] font-semibold text-xl text-[#111] line-clamp-2">{title}</h3>
             <DashboardDeckOptionMenu deckId={id} />
             

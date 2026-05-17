@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import CreateDeckModal from "./CreateDeckModal";
 import CreateRoadmapModal from "./CreateRoadmapModal";
 import { DeleteDeckDialog } from "./DeleteDeckDialog";
+import { ResetDeckDialog } from "./ResetDeckDialog";
 
 export const ModalProvider = () => {
   const [isMounted, setIsMounted] = useState(false);
@@ -18,6 +19,7 @@ export const ModalProvider = () => {
       <CreateDeckModal />
       <CreateRoadmapModal />
       <DeleteDeckDialog/>
+      <ResetDeckDialog/>
     </>
   );
 };

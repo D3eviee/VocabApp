@@ -2,7 +2,7 @@
 import { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useEditorStore } from '@/store/use-editor-store';
-import { getDeckItems } from '@/app/actions/queries';
+import { getFlashcardDeckItems } from '@/app/actions/queries';
 import StoryboardMenu from './StoryboardMenu';
 import EditStoryPartPanel from './EditStoryPartPanel';
 
@@ -11,7 +11,7 @@ export default function StoryboardEditor({ storyboardId }: { storyboardId: strin
 
   const { data: storyParts = [] } = useQuery({
     queryKey: ['story-items', storyboardId],
-    queryFn: () => getDeckItems(storyboardId), // Ponownie wykorzystujemy starą akcję, bo to wciąż pobieranie z deckItems
+    queryFn: () => getFlashcardDeckItems(storyboardId), // Ponownie wykorzystujemy starą akcję, bo to wciąż pobieranie z deckItems
   });
 
   // Automatyczne zaznaczenie pierwszej części historii po wejściu do edytora

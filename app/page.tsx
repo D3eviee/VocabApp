@@ -80,7 +80,7 @@ export default function LandingPage() {
             
             {/* Timeline UI Mockup */}
             <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500/20 to-purple-500/20 blur-3xl -z-10 rounded-full" />
+              <div className="absolute inset-0 bg-linear-to-tr from-indigo-500/20 to-purple-500/20 blur-3xl -z-10 rounded-full" />
               <div className="bg-[#F5F5F7] rounded-[2.5rem] p-6 border-8 border-gray-900 shadow-2xl relative overflow-hidden aspect-[4/3] flex items-center justify-center">
                 <div className="w-full max-w-sm bg-white p-8 rounded-3xl shadow-lg transform -rotate-2 hover:rotate-0 transition-transform duration-500 cursor-pointer">
                   <div className="mb-4"><span className="px-3 py-1 bg-amber-100 text-amber-800 rounded-lg text-xs font-black tracking-widest">1969</span></div>

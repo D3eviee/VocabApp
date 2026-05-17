@@ -1,80 +1,58 @@
 import { rateCardAction } from "@/app/actions/queries";
-import { Meaning, WordVariation } from "@/server/schema";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import Button from "../ui/Button";
-import { RotateCcw } from "lucide-react";
-import { Dispatch, SetStateAction } from "react"; // Zmień na poprawny import
 import { StudyModeControlsButton } from "./StudyModeControlsButton";
 
 type StudyModeControlsProps = {
   deckId: string;
   currentIndex: number;
   cardsAmount: number;
-  currentCard: {
-    id: string;
-    deckId: string;
-    order: number;
-    front: string | null;
-    partOfSpeech: string | null;
-    meanings: Meaning[];
-    dateLabel: string | null;
-    title: string | null;
-    description: string | null;
-    variations: WordVariation[];
-    dueDate: Date;
-    interval: number;
-    easeFactor: number;
-    repetitions: number;
-    createdAt: Date;
-  };
+  currentCard: any;
   isFlipped: boolean;
   setIsFlipped: (val: boolean) => void;
   setIsFinished: (val: boolean) => void;
-  setCurrentIndex: Dispatch<SetStateAction<number>>;
+  setCurrentIndex: (value: React.SetStateAction<number>) => void;
 }
 
-type RatingOption = {
-  type: 'again' | 'hard' | 'good' | 'easy';
-  label: string;
-  timeHint: string;
-};
-
-const RATING_OPTIONS: RatingOption[] = [
+const RATING_OPTIONS = [
   { type: 'again', label: 'Again', timeHint: '< 1 min' },
   { type: 'hard', label: 'Hard', timeHint: '1 day' },
   { type: 'good', label: 'Good', timeHint: '3 days' },
   { type: 'easy', label: 'Easy', timeHint: '5 days' },
-];
+] as const;
 
-const StudyModeControls = ({ deckId, setCurrentIndex, setIsFlipped, isFlipped, setIsFinished, currentIndex, currentCard, cardsAmount }: StudyModeControlsProps) => {
+export const StudyModeControls = ({ 
+  deckId, setCurrentIndex, setIsFlipped, isFlipped, 
+  setIsFinished, currentIndex, currentCard, cardsAmount 
+}: StudyModeControlsProps) => {
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
     mutationFn: ({ cardId, rating }: { cardId: string, rating: 'again' | 'hard' | 'good' | 'easy' }) => rateCardAction(cardId, rating),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['deck-items', deckId] });
+      queryClient.invalidateQueries({ queryKey: ['deck-flashcards-items', deckId] });
 
+      // Resetujemy obrót (Fiszka zniknie z ekranu i pojawi się nowa)
       setIsFlipped(false);
 
-      if (currentIndex < cardsAmount - 1) setCurrentIndex(prev => prev + 1);
-      else setIsFinished(true);
+      // Przechodzimy dalej lub kończymy
+      if (currentIndex < cardsAmount - 1) {
+        setCurrentIndex(prev => prev + 1);
+      } else {
+        setIsFinished(true);
+        // Opcjonalnie: na sam koniec sesji możemy wreszcie odświeżyć due-items
+        queryClient.invalidateQueries({ queryKey: ['deck-items-due', deckId] });
+      }
     }
   });
 
-  const handleRateCard = (rating: 'again' | 'hard' | 'good' | 'easy') => mutation.mutate({ cardId: currentCard.id, rating });
+  const handleRateCard = (rating: 'again' | 'hard' | 'good' | 'easy') => {
+    mutation.mutate({ cardId: currentCard.id, rating });
+  };
 
   return (
-    <div className="mt-2 mb-8 flex flex-row items-center justify-center w-full max-w-2xl mx-auto">
-      {!isFlipped ? (
-        <Button
-          onClick={() => setIsFlipped(true)}
-          variant="secondary" 
-          className="px-8 py-4 rounded-2xl shadow-sm text-base w-full max-w-62.5"
-        >
-          <RotateCcw size={18} /> Show Answer
-        </Button>
-      ) : (
-        <div className="flex flex-row justify-center gap-4 w-full animate-in slide-in-from-bottom-4 fade-in duration-300">
+    <div className="w-full flex flex-row items-center justify-center py-1">
+      {isFlipped &&
+        <div className="flex flex-row justify-center gap-2 sm:gap-4 w-full">
           {RATING_OPTIONS.map((option) => (
             <StudyModeControlsButton
               key={option.type}
@@ -86,9 +64,7 @@ const StudyModeControls = ({ deckId, setCurrentIndex, setIsFlipped, isFlipped, s
             />
           ))}
         </div>
-      )}
+    }
     </div>
   )
 }
-
-export default StudyModeControls;

@@ -7,7 +7,7 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 export default function Button({ children, isLoading = false, variant = "primary", className = "", disabled, ...props }: ButtonProps) {
-  const baseStyles = "inline-flex items-center justify-center gap-2 rounded-lg text-sm font-semibold transition-all active:scale-95";
+  const baseStyles = "inline-flex items-center justify-center gap-2 text-sm font-semibold transition-all active:scale-95";
   
   const variants = {
     primary: "bg-gray-900 hover:bg-black text-white shadow-sm",

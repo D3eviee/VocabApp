@@ -2,7 +2,7 @@
 import { useEffect } from 'react';
 import { useEditorStore } from '@/store/use-editor-store';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { getDeckItems, updateCardAction, deleteCardAction } from '@/app/actions/queries';
+import { getFlashcardDeckItems, updateCardAction, deleteCardAction } from '@/app/actions/queries';
 import { Save, Trash2, LayoutTemplate } from 'lucide-react';
 
 export default function EditStoryPartPanel({ storyboardId }: { storyboardId: string }) {
@@ -14,7 +14,7 @@ export default function EditStoryPartPanel({ storyboardId }: { storyboardId: str
 
   const { data: storyParts = [] } = useQuery({
     queryKey: ['story-items', storyboardId],
-    queryFn: () => getDeckItems(storyboardId),
+    queryFn: () => getFlashcardDeckItems(storyboardId),
   });
 
   const saveMutation = useMutation({

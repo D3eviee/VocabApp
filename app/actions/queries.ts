@@ -1,10 +1,9 @@
 'use server'
 import { db } from "@/server/db";
 import { deckItems, users, decks } from "@/server/schema";
-import { eq, asc, lte, desc, and, ne} from "drizzle-orm";
+import { eq, lte, desc, and, ne} from "drizzle-orm";
 import { addDays, isToday, isYesterday } from "date-fns";
 import { getCurrentUser } from "@/lib/auth";
-
 
 // GET FLASHCARD DECK ITEMS
 export async function getFlashcardDeckItems(deckId: string) {
@@ -28,7 +27,6 @@ export async function getFlashcardDeckItems(deckId: string) {
     return [];
   }
 }
-
 
 // 2. CARD DATA UPDATE
 export async function updateCardAction(id: string | undefined, data: any) {
@@ -226,17 +224,48 @@ export async function reorderStoryPartsAction(items: { id: string; order: number
   }
 }
 
+// USED TO GET ITEMS FOR STUDYING IN STUDY MODE
 export async function getDueDeckItems(deckId: string) {
-  const today = new Date();
-  
-  return await db.select()
-    .from(deckItems)
-    .where(
-      and(
-        eq(deckItems.deckId, deckId),
-        lte(deckItems.dueDate, today) ,
-        ne(deckItems.partOfSpeech, "draft")
+  try {
+    const user = await getCurrentUser();
+    if (!user) throw new Error("Unauthorized");
+    
+    const today = new Date();
+    
+    return await db.select()
+      .from(deckItems)
+      .where(
+        and(
+          eq(deckItems.deckId, deckId),
+          lte(deckItems.dueDate, today),
+          ne(deckItems.partOfSpeech, "draft")
+        )
       )
-    )
-    .orderBy(asc(deckItems.order));
+      .orderBy(deckItems.order);
+      
+  } catch (error) {
+    console.error("Failed to fetch due cards:", error);
+    return [];
+  }
+}
+
+// USED TO PRIVIDE TITLE FOR THE DECK IN STUDY MODE
+export async function getDeckTitleById(deckId: string) {
+  try {
+    const user = await getCurrentUser();
+    if (!user) return null;
+
+    const [deck] = await db
+      .select({ title: decks.title }) 
+      .from(decks)
+      .where(
+        and(
+          eq(decks.id, deckId),
+        )
+      );
+      
+    return deck || null;
+  } catch (error) {
+    return null;
+  }
 }

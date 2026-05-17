@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-export type ModalType = "createDeck" | "createRoadmap" | "deleteDeckConfirm"
+export type ModalType = "createDeck" | "createRoadmap" | "deleteDeckConfirm" | "resetDeckConfirm"
 
 interface ModalData {
   deckId?: string;
