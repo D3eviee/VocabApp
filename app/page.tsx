@@ -81,7 +81,7 @@ export default function LandingPage() {
             {/* Timeline UI Mockup */}
             <div className="relative">
               <div className="absolute inset-0 bg-linear-to-tr from-indigo-500/20 to-purple-500/20 blur-3xl -z-10 rounded-full" />
-              <div className="bg-[#F5F5F7] rounded-[2.5rem] p-6 border-8 border-gray-900 shadow-2xl relative overflow-hidden aspect-[4/3] flex items-center justify-center">
+              <div className="bg-[#F5F5F7] rounded-[2.5rem] p-6 border-8 border-gray-900 shadow-2xl relative overflow-hidden aspect-4/3 flex items-center justify-center">
                 <div className="w-full max-w-sm bg-white p-8 rounded-3xl shadow-lg transform -rotate-2 hover:rotate-0 transition-transform duration-500 cursor-pointer">
                   <div className="mb-4"><span className="px-3 py-1 bg-amber-100 text-amber-800 rounded-lg text-xs font-black tracking-widest">1969</span></div>
                   <h3 className="text-2xl font-black mb-4">Apollo 11 Moon Landing</h3>
@@ -146,7 +146,7 @@ export default function LandingPage() {
             </div>
 
             {/* PRO PLAN */}
-            <div className="bg-gradient-to-b from-indigo-600 to-indigo-900 p-10 rounded-3xl border border-indigo-500 relative transform md:-translate-y-4 shadow-2xl shadow-indigo-500/20">
+            <div className="bg-linear-to-b from-indigo-600 to-indigo-900 p-10 rounded-3xl border border-indigo-500 relative transform md:-translate-y-4 shadow-2xl shadow-indigo-500/20">
               <div className="absolute top-0 right-8 transform -translate-y-1/2">
                 <span className="bg-amber-400 text-amber-900 text-xs font-black px-3 py-1 rounded-full uppercase tracking-widest">
                   Most Popular

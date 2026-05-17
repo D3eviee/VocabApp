@@ -1,6 +1,6 @@
 import { useEditorStore } from '@/store/use-editor-store';
 import { MessageCircle, Plus, Trash2 } from 'lucide-react';
-import SecondaryEditorInput from './SecondaryEdiotrInput';
+import SecondaryEditorInput from './SecondaryEditorInput';
 import { PrimaryEditorInput } from './PrimaryEditorInput';
 
 type TranslationProps = {

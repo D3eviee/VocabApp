@@ -4,6 +4,7 @@ import CreateDeckModal from "./CreateDeckModal";
 import CreateRoadmapModal from "./CreateRoadmapModal";
 import { DeleteDeckDialog } from "./DeleteDeckDialog";
 import { ResetDeckDialog } from "./ResetDeckDialog";
+import { DeleteItemDialog } from "./DeleteItemDialog";
 
 export const ModalProvider = () => {
   const [isMounted, setIsMounted] = useState(false);
@@ -20,6 +21,7 @@ export const ModalProvider = () => {
       <CreateRoadmapModal />
       <DeleteDeckDialog/>
       <ResetDeckDialog/>
+      <DeleteItemDialog/>
     </>
   );
 };

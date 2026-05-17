@@ -1,52 +1,40 @@
-"use client";
-import { GripVertical } from 'lucide-react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { GripVertical } from 'lucide-react';
 
-export const  StoryboardMenuItem = ({ part, index, isActive, onSelect }: any) => {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: part.id });
-  
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
-    zIndex: isDragging ? 10 : 1,
-  };
+type StoryboardMenuItemProps = {
+  part: any;
+  index: number;
+  isActive: boolean;
+  onSelect: (id: string) => void;
+}
 
-  const title = part.front?.trim() ? part.front : `Part ${index + 1}`;
+export const StoryboardMenuItem = ({ part, isActive, onSelect }: StoryboardMenuItemProps) => {
+  const { attributes,listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: part.id });
+  const style = { transform: CSS.Transform.toString(transform), transition, zIndex: isDragging ? 50 : 1,};
 
   return (
     <div
       ref={setNodeRef}
       style={style}
-      className={`
-        group flex items-center gap-2 p-2 rounded-2xl border transition-colors duration-200
-        ${isActive ? 'bg-indigo-50 border-indigo-200 shadow-sm' : 'bg-transparent border-transparent hover:bg-gray-50 hover:border-gray-200'}
-      `}
+      className={`group flex items-center p-3  transition-all ${isActive ? 'hover:bg-transparent' : 'hover:bg-red'
+      } ${isDragging ? 'opacity-50 scale-[1.02] shadow-md border-gray-200' : 'opacity-100'}`}
+      onClick={() => onSelect(part.id)}
     >
-      {/* 1. UCHWYT DO PRZECIĄGANIA (Grip) */}
-      <div 
-        {...attributes} 
-        {...listeners} 
-        className="p-1.5 text-gray-300 hover:text-gray-500 cursor-grab active:cursor-grabbing rounded-lg hover:bg-gray-100 transition-colors"
+      <div
+        {...attributes}
+        {...listeners}
+        onClick={(e) => e.stopPropagation()} 
+        className={`p-1.5 rounded-lg cursor-grab active:cursor-grabbing transition-colors mr-2 
+          ${ isActive ? 'text-[#4F39F6] hover:bg-blue-100' : 'text-gray-300 hover:bg-gray-200 hover:text-[#4F39F6]'
+        }`}
       >
-        <GripVertical size={16} />
+        <GripVertical size={16} strokeWidth={2} />
       </div>
 
-      {/* KLIKALNY OBSZAR (Zaznaczanie elementu) */}
-      <div onClick={() => onSelect(part.id)} className="flex flex-1 items-center gap-3 cursor-pointer overflow-hidden py-1 pr-2">
-        <div className={`
-          flex items-center justify-center w-7 h-7 rounded-xl shrink-0 text-sm font-bold transition-colors
-          ${isActive ? 'bg-indigo-500 text-white shadow-md shadow-indigo-200' : 'bg-white border border-gray-200 text-gray-500 group-hover:border-gray-300'}
-        `}>
-          {index + 1}
-        </div>
-        
-        <div className="flex-1 min-w-0">
-          <p className={`text-sm font-semibold truncate transition-colors ${isActive ? 'text-indigo-900' : 'text-gray-700'}`}>
-            {title}
-          </p>
-        </div>
+      <div className="flex-1 min-w-0">        
+        <h3 className={`text-sm font-bold truncate mb-0.5 ${ isActive ? 'text-[#4F39F6]' : 'text-[#111]'}`}>{part.title || 'Untitled Event'}</h3>
+        <p className={`text-xs truncate mt-0.5 ${isActive ? 'text-[#5F4AF7]' : 'text-[#494949]'}`}>{part.description || 'No description...'}</p>
       </div>
     </div>
   );

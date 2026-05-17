@@ -19,11 +19,8 @@ export interface Variation {
 export interface FlashcardDraft {
     id?: string;
     deckId?: string;
-    front: string;
-    partOfSpeech: PartOfSpeech | string;
-    title: string,
-    description: string,
-    dateLabel: string,
+    front: string | null; 
+    partOfSpeech: string | null;
     meanings: Meaning[]; 
     variations: Variation[];
 }
@@ -44,7 +41,7 @@ export type FlashcardEditorStore = {
 
     updateMainField: <K extends keyof FlashcardDraft>(field: K, value: FlashcardDraft[K]) => void;
 
-    // ZNACZENIA GŁÓWNEGO SŁOWA
+    // MAIN WORD
     addMeaning: () => void;
     removeMeaning: (index: number) => void;
     updateMeaningField: <K extends keyof Meaning>(mIndex: number, field: K, value: Meaning[K]) => void;
@@ -52,12 +49,12 @@ export type FlashcardEditorStore = {
     updateMeaningExample: (mIndex: number, exIndex: number, value: string) => void;
     removeMeaningExample: (mIndex: number, exIndex: number) => void;
 
-    // WARIACJE
+    // VARIATIONS
     addVariation: () => void;
     removeVariation: (index: number) => void;
     updateVariationField: <K extends keyof Variation>(varIndex: number, field: K, value: Variation[K]) => void;
     
-    // ZNACZENIA WARIACJI
+    // VARIATIONS MEANINGS
     addVariationMeaning: (varIndex: number) => void;
     removeVariationMeaning: (varIndex: number, mIndex: number) => void;
     updateVariationMeaningField: (varIndex: number, mIndex: number, field: keyof Meaning, value: string) => void;
@@ -66,14 +63,9 @@ export type FlashcardEditorStore = {
     removeVariationMeaningExample: (varIndex: number, mIndex: number, exIndex: number) => void;
 }
 
-// store/use-editor-store.ts
-// ... (początek pliku pozostaje bez zmian)
-
 export const useEditorStore = create<FlashcardEditorStore>()(immer((set) => ({
     activeCardId: null,
     formData: null,
-
-    
 
     setActiveCardId: (id) => set((state) => { state.activeCardId = id }),
     setFormData: (data) => set((state) => { state.formData = data as any }),
@@ -83,47 +75,58 @@ export const useEditorStore = create<FlashcardEditorStore>()(immer((set) => ({
         state.formData[field] = value as any;
     }),
     
-    // === GŁÓWNE ZNACZENIA ===
+    // === MAIN MEANING ===
     addMeaning: () => set((state) => {
         if (!state.formData) return;
         if (!state.formData.meanings) state.formData.meanings = [];
-        // ZMIANA: Pusta tablica przykładów na start
         state.formData.meanings.push({ id: crypto.randomUUID(), ...MEANING_TEMPLATE, examples: [] });
     }),
-    removeMeaning: (mIndex) => set((state) => { state.formData?.meanings?.splice(mIndex, 1); }),
+    removeMeaning: (mIndex) => set((state) => { 
+        state.formData?.meanings?.splice(mIndex, 1); 
+    }),
     updateMeaningField: (mIndex, field, value) => set((state) => {
-        if (state.formData?.meanings?.[mIndex]) state.formData.meanings[mIndex][field] = value as any;
+        if (state.formData?.meanings?.[mIndex]) {
+            state.formData.meanings[mIndex][field] = value as any;
+        }
     }),
     addMeaningExample: (mIndex) => set((state) => {
         state.formData?.meanings?.[mIndex]?.examples.push("");
     }),
     updateMeaningExample: (mIndex, exIndex, value) => set((state) => {
-        if (state.formData?.meanings?.[mIndex]?.examples) state.formData.meanings[mIndex].examples[exIndex] = value;
+        if (state.formData?.meanings?.[mIndex]?.examples) {
+            state.formData.meanings[mIndex].examples[exIndex] = value;
+        }
     }),
     removeMeaningExample: (mIndex, exIndex) => set((state) => {
         state.formData?.meanings?.[mIndex]?.examples.splice(exIndex, 1);
     }),
 
-    // === WARIACJE ===
+    // === VARIATIONS ===
     addVariation: () => set((state) => {
         if (!state.formData) return;
         if (!state.formData.variations) state.formData.variations = [];
         state.formData.variations.push({ 
             id: crypto.randomUUID(), 
             ...VARIATION_TEMPLATE, 
-            // ZMIANA: Pusta tablica przykładów na start dla znaczenia wewnątrz wariacji
             meanings: [{ id: crypto.randomUUID(), ...MEANING_TEMPLATE, examples: [] }] 
         });
     }),
-    removeVariation: (index) => set((state) => { state.formData?.variations?.splice(index, 1); }),
+    removeVariation: (index) => set((state) => { 
+        state.formData?.variations?.splice(index, 1); 
+    }),
     updateVariationField: (varIndex, field, value) => set((state) => {
-        if (state.formData?.variations?.[varIndex]) state.formData.variations[varIndex][field] = value as any;
+        if (state.formData?.variations?.[varIndex]) {
+            state.formData.variations[varIndex][field] = value as any;
+        }
     }),
 
-    // === ZNACZENIA WARIACJI ===
+    // === VARIATIONS MEANINGS ===
     addVariationMeaning: (varIndex) => set((state) => {
-        // ZMIANA: Pusta tablica przykładów na start
-        state.formData?.variations?.[varIndex]?.meanings.push({ id: crypto.randomUUID(), ...MEANING_TEMPLATE, examples: [] });
+        state.formData?.variations?.[varIndex]?.meanings.push({ 
+            id: crypto.randomUUID(), 
+            ...MEANING_TEMPLATE, 
+            examples: [] 
+        });
     }),
     removeVariationMeaning: (varIndex, mIndex) => set((state) => {
         state.formData?.variations?.[varIndex]?.meanings.splice(mIndex, 1);

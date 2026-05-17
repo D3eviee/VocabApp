@@ -28,7 +28,7 @@ export default function StudyMode({ deckId, deckTitle }: { deckId: string, deckT
  
   return (
     <div className='w-full h-full md:min-h-full flex flex-col'>
-      <div className="relative flex-1 w-full max-w-5xl mx-auto flex flex-col bg-white overflow-hidden">
+      <div className="relative flex-1 w-full bg-white mx-auto flex flex-col  overflow-hidden">
         <StudyModeHeader deckTitle={deckTitle}/>
 
         <div className='flex-1 w-full min-h-0 md:w-120 mx-auto'>

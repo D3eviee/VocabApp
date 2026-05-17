@@ -1,9 +1,17 @@
 import { create } from 'zustand';
 
-export type ModalType = "createDeck" | "createRoadmap" | "deleteDeckConfirm" | "resetDeckConfirm"
+export type ModalType = 
+  | "createDeck" 
+  | "createRoadmap" 
+  | "deleteDeckConfirm" 
+  | "resetDeckConfirm" 
+  | "deleteItemConfirm";
 
-interface ModalData {
+export interface ModalData {
   deckId?: string;
+  itemId?: string;
+  itemType?: "flashcard" | "storyboardEvent"; 
+  onSuccess?: () => void; 
 }
 
 interface ModalStore {

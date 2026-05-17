@@ -9,9 +9,9 @@ export default async function DeckPage({ params }: { params: Params }) {
   const queryClient = new QueryClient();
 
   await queryClient.prefetchQuery({
-    queryKey: ['deck-flashcards-items', id],
+    queryKey: ['flashcards-items', id],
     queryFn: () => getFlashcardDeckItems(id),
-    staleTime: 1000 * 60 * 5,
+    staleTime: Infinity,
   });
 
   return (

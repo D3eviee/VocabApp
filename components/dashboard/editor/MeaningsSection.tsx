@@ -1,5 +1,5 @@
 import { PrimaryEditorInput } from './PrimaryEditorInput';
-import SecondaryEditorInput from './SecondaryEdiotrInput'
+import SecondaryEditorInput from './SecondaryEditorInput'
 import { MessageCircle, Plus, Trash2 } from 'lucide-react'
 
 type MeaningsSectionProps = {

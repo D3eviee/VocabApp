@@ -1,127 +1,122 @@
 "use client";
 import { useEffect } from 'react';
-import { useEditorStore } from '@/store/use-editor-store';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { getFlashcardDeckItems, updateCardAction, deleteCardAction } from '@/app/actions/queries';
-import { Save, Trash2, LayoutTemplate } from 'lucide-react';
+import { useStoryboardStore, StoryboardDraft } from '@/store/use-storyboard-store';
+import { Save, Trash2, ChevronLeft, Plus, Loader2 } from 'lucide-react';
+import { useStoryboardQueries } from '@/lib/hooks/useStoryboardQueries';
+import { useModal } from '@/store/modal-store';
 
-export default function EditStoryPartPanel({ storyboardId }: { storyboardId: string }) {
-  const { 
-    activeCardId, setActiveCardId, formData, setFormData, updateMainField 
-  } = useEditorStore();
+export const EditStoryPartPanel = ({ storyboardId, onBack }: { storyboardId: string, onBack: () => void }) => {
+  const { onOpen } = useModal();
+  const { activePartId, setActivePartId, formData, setFormData, updateField } = useStoryboardStore();
+  const { storyQuery, updatePart, deletePart, createPart } = useStoryboardQueries(storyboardId);
+  const { data: storyParts = [] } = storyQuery;
 
-  const queryClient = useQueryClient();
+  const handleSave = () => {
+    if (!formData?.id) return;
+    updatePart.mutate(
+      { id: formData.id, data: formData },
+      { onSuccess: () => { if (window.innerWidth < 1024) onBack(); } }
+    );
+  };
 
-  const { data: storyParts = [] } = useQuery({
-    queryKey: ['story-items', storyboardId],
-    queryFn: () => getFlashcardDeckItems(storyboardId),
-  });
-
-  const saveMutation = useMutation({
-    mutationFn: () => updateCardAction(formData?.id, formData),
-    onSuccess: (result) => {
-      if (result?.success) {
-        queryClient.invalidateQueries({ queryKey: ['story-items', storyboardId] });
+  const handleDelete = () => {
+    if (!formData?.id) return;
+    
+    onOpen("deleteItemConfirm", { 
+      itemId: formData.id,
+      deckId: storyboardId,
+      itemType: "storyboardEvent",
+      onSuccess: () => {
+        setActivePartId(null);
+        onBack();
       }
-    },
-  });
+    });
+  };
 
-  const deleteMutation = useMutation({
-    mutationFn: () => deleteCardAction(formData?.id),
-    onSuccess: (result) => {
-      if (result?.success) {
-        queryClient.invalidateQueries({ queryKey: ['story-items', storyboardId] });
-        setActiveCardId(null); 
-      } else {
-        alert("Wystąpił błąd podczas usuwania.");
+  const handleCreate = () => {
+    createPart.mutate(undefined, {
+      onSuccess: (result) => {
+        if (result?.success && result.id) setActivePartId(result.id);
       }
-    },
-  });
+    });
+  };
 
   useEffect(() => {
-    const part = storyParts.find((p: any) => p.id === activeCardId);
+    const part = storyParts.find((p: any) => p.id === activePartId);
     if (part) {
-      setFormData(JSON.parse(JSON.stringify(part)));
+      const clonedPart = JSON.parse(JSON.stringify(part));
+      
+      clonedPart.title = clonedPart.title || "";
+      clonedPart.description = clonedPart.description || "";
+      clonedPart.dateLabel = clonedPart.dateLabel || "";
+
+      setFormData(clonedPart as StoryboardDraft);
     } else {
       setFormData(null);
     }
-  }, [activeCardId, storyParts, setFormData]);
+  }, [activePartId, storyParts, setFormData]);
 
-  if (!formData) {
-    return (
-      <div className="flex-1 flex flex-col items-center justify-center bg-white text-gray-400 font-medium">
-        <div className="p-4 bg-gray-50 rounded-full mb-4">
-          <LayoutTemplate size={32} className="text-gray-300" />
-        </div>
-        <p>Wybierz lub stwórz nowe wydarzenie na osi czasu.</p>
-      </div>
-    );
-  }
-
+  if (!formData) return (<div className="flex-1 flex items-center justify-center text-gray-400 font-medium bg-white lg:bg-transparent h-full">Select event or add new</div>)
+    
   return (
-    <main className="relative flex-1 flex flex-col bg-white">
-      
-      {/* OBSZAR EDYCJI */}
-      <div className="flex-1 overflow-y-auto px-12 py-12 pb-24">
-        <div className="max-w-3xl mx-auto flex flex-col h-full gap-5">
-          
-          {/* POLE: DATE_LABEL */}
-          <div className="flex items-center">
-            <div className="px-4 py-1.5 bg-amber-100 text-amber-700 rounded-xl text-sm font-bold tracking-widest uppercase flex items-center transition-all focus-within:ring-2 focus-within:ring-amber-400 focus-within:bg-amber-50">
-              <input
-                type="text"
-                placeholder="np. 1410 albo XIX wiek"
-                value={formData.dateLabel || ""}
-                onChange={(e) => updateMainField('dateLabel', e.target.value)}
-                className="bg-transparent outline-none placeholder-amber-700/40 text-amber-900 w-48 font-black"
-              />
-            </div>
-          </div>
+    <main className="relative flex-1 flex flex-col h-full overflow-y-auto bg-white lg:bg-transparent custom-scrollbar min-h-0">
+      {/* HEADER */}
+       <div className="p-2 flex items-center justify-between shrink-0 border-b lg:border-none border-gray-100">
+        <div className="flex items-center gap-2">
+          <button onClick={onBack} className="lg:hidden text-gray-600 p-1 hover:bg-gray-200 rounded-lg flex items-center transition-colors">
+           <ChevronLeft size={22} color="#2B7FFF"/> 
+          </button>
+          <span className="hidden lg:block text-[#2B2B2B] font-bold text-sm ml-2">Edit Event</span>
+        </div>
 
-          {/* POLE: TITLE */}
+        <div className="flex items-center gap-2">
+          <button onClick={handleDelete} disabled={deletePart.isPending} className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 hover:cursor-pointer" title="Delete event">
+            {deletePart.isPending ? <Loader2 size={20} className="animate-spin" /> : <Trash2 size={20} />}
+          </button>
+
+          <button onClick={handleCreate} disabled={createPart.isPending} className="p-1 text-gray-400 hover:text-[#2B7FFF] hover:bg-blue-50 rounded-lg transition-colors disabled:opacity-50 hover:cursor-pointer" title="Create new event">
+            {createPart.isPending ? <Loader2 size={20} className="animate-spin" /> : <Plus size={20} />}
+          </button>
+
+          <button onClick={handleSave} disabled={updatePart.isPending} className="flex items-center gap-2 px-3 py-1 md:py-2  ml-1 sm:ml-2 bg-[#2B7FFF] text-white text-sm font-semibold rounded-xl hover:bg-blue-600 active:scale-95 transition-all disabled:opacity-50 hover:cursor-pointer">
+            {updatePart.isPending ? <Loader2 size={20} className="animate-spin" /> : <Save size={20} />}
+            <span className="hidden sm:inline">{updatePart.isPending ? "Saving..." : "Save"}</span>
+          </button>
+        </div>
+      </div>
+
+      {/*FORM */}
+      <div className="flex-1 flex flex-col gap-1 px-4 md:px-8 py-6 mx-auto w-full max-w-4xl">
+        {/* DATE */}
+        <div className="w-full md:w-fit bg-gray-50 rounded-xl px-1 border border-gray-100 mb-3 focus-within:ring-2 focus-within:ring-indigo-200 transition shrink-0">
           <input
             type="text"
-            placeholder="Tytuł wydarzenia (np. Bitwa pod Grunwaldem)"
-            value={formData.title || ""}
-            onChange={(e) => updateMainField('title', e.target.value)}
-            className="w-full text-4xl font-black text-gray-900 placeholder-gray-300 outline-none bg-transparent"
+            placeholder="Date of the event (e.g., 1410)"
+            value={formData.dateLabel || ""}
+            onChange={(e) => updateField('dateLabel', e.target.value)}
+            className="w-full md:w-64 p-3 bg-transparent outline-none text-base font-medium text-indigo-950 placeholder:text-gray-400"
           />
-
-          <div className="w-16 h-1 bg-indigo-500 rounded-full my-2"></div>
-
-          {/* POLE: DESCRIPTION */}
-          <textarea
-            placeholder="Opisz to wydarzenie historyczne..."
-            value={formData.description || ""}
-            onChange={(e) => updateMainField('description', e.target.value)}
-            className="w-full flex-1 min-h-100 text-lg text-gray-700 leading-relaxed placeholder-gray-300 outline-none bg-transparent resize-none"
-            spellCheck="false"
-          />
-
         </div>
-      </div>
+      
+        {/* DESCRIPTION */}
+        <input
+          type="text"
+          placeholder="Type event title"
+          value={formData.title || ""}
+          onChange={(e) => updateField('title', e.target.value)}
+          className="w-full shrink-0 text-4xl md:text-5xl font-extrabold text-[#111] placeholder:text-gray-200 outline-none bg-transparent p-0 border-none focus:ring-0 tracking-tight"
+        />
 
-      {/* FOOTER AKCJI (Bez zmian) */}
-      <div className="absolute bottom-6 left-0 right-0 flex justify-center items-center gap-3 z-50 pointer-events-none">
-        <div className="pointer-events-auto flex gap-3 p-2 bg-white/80 backdrop-blur-md rounded-3xl border border-gray-200/50 shadow-[0_8px_30px_rgba(0,0,0,0.08)]">
-          <button
-            onClick={() => window.confirm("Usunąć to wydarzenie?") && deleteMutation.mutate()}
-            disabled={deleteMutation.isPending || saveMutation.isPending}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-2xl font-semibold bg-white text-gray-600 hover:bg-red-50 hover:text-red-600 transition-all disabled:opacity-50"
-          >
-            <Trash2 size={18} strokeWidth={2} />
-            <span className="hidden sm:inline">Delete</span>
-          </button>
+        <div className="w-20 h-1.5 bg-indigo-500 rounded-full mt-4 mb-6 shrink-0" />
 
-          <button
-            onClick={() => saveMutation.mutate()} 
-            disabled={saveMutation.isPending || deleteMutation.isPending}
-            className="flex items-center gap-2 px-6 py-2.5 rounded-2xl font-semibold bg-[#18181B] text-white shadow-md hover:bg-[#27272A] hover:-translate-y-0.5 active:translate-y-0 transition-all disabled:opacity-50"
-          >
-            {!saveMutation.isPending && <Save size={18} strokeWidth={2} />}
-            {saveMutation.isPending ? "Saving..." : "Save Event"}
-          </button>
-        </div>
+        {/* DESCRIPTION */}
+        <textarea
+          placeholder="Describe this event..."
+          value={formData.description || ""}
+          onChange={(e) => updateField('description', e.target.value)}
+          className="w-full flex-1 text-lg text-gray-800 leading-relaxed placeholder:text-gray-300 outline-none bg-transparent resize-none p-0 border-none focus:ring-0 pb-12"
+          spellCheck="false"
+        />
       </div>
     </main>
   );
