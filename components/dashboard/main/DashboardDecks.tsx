@@ -1,6 +1,6 @@
+import { getUserDecks } from '@/app/actions/decks';
 import { FlashcardDeckThumbnail } from './FlashcardDeckThumbnail';
 import { StoryboardDeckThumbnail } from './StoryboardDeckThumbnail';
-import { getUserDecks } from '@/server/queries/decks'; 
 
 export const DashboardDecks = async () =>  {  
     const decks = await getUserDecks();

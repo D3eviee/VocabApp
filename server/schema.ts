@@ -61,14 +61,14 @@ export const sessionsRelations = relations(sessions, ({ one }) => ({
 }));
 
 
-// Typ talii: Klasyczna (Fiszki) lub Roadmapa (Storytelling)
+// TYPE OF CARD
 export const deckTypeEnum = pgEnum("deck_type", ["classic", "storytelling"]);
 
 export const decks = pgTable("decks", {
   id: uuid("id").defaultRandom().primaryKey(),
   userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   title: varchar("title", { length: 100 }).notNull(),
-  type: deckTypeEnum("type").default("classic").notNull(), // Kluczowe rozróżnienie
+  type: deckTypeEnum("type").default("classic").notNull(), 
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -82,15 +82,15 @@ export const deckItems = pgTable("deck_items", {
   meanings: jsonb("meanings").$type<Meaning[]>().default([]).notNull(),
   variations: jsonb("variations").$type<WordVariation[]>().default([]).notNull(),
   
-  // STORY BOARDS
-  dateLabel: varchar("date_label", { length: 50 }), // np. "15 Marca 2024"
-  title: varchar("title", { length: 255 }),        // Tytuł karty w historii
-  description: text("description"),                // Opis / treść opowieści
+  // STORYBOARDS
+  dateLabel: varchar("date_label", { length: 50 }), 
+  title: varchar("title", { length: 255 }),        
+  description: text("description"),                
   order: integer("order").default(0).notNull(),
 
-  dueDate: timestamp("due_date").defaultNow().notNull(), // Kiedy karta ma zostać wyświetlona ponownie
-  interval: integer("interval").default(0).notNull(), // Aktualny odstęp między powtórkami (w dniach)
-  easeFactor: real("ease_factor").default(2.5).notNull(), // Współczynnik łatwości (domyślnie 2.5 jak w algorytmie SM-2)
+  dueDate: timestamp("due_date").defaultNow().notNull(),
+  interval: integer("interval").default(0).notNull(), 
+  easeFactor: real("ease_factor").default(2.5).notNull(), 
   repetitions: integer("repetitions").default(0).notNull(), 
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });

@@ -26,8 +26,6 @@ type StoryboardStudyModeHeaderProps = {
   }[]
 }
 
-
-
 export const StoryboardStudyModeHeader = ({currentIndex, cardsCount, storyParts}:StoryboardStudyModeHeaderProps) => {
   const timelineData = useMemo(() => {
     // Słownik dla rzymskich cyfr (często używane przy wiekach)

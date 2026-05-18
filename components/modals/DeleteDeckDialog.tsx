@@ -1,6 +1,4 @@
-// components/modals/DeleteDeckModal.tsx
 "use client";
-
 import { useTransition } from "react";
 import { useModal } from "@/store/modal-store";
 import { deleteDeckAction } from "@/app/actions/decks";

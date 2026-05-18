@@ -4,7 +4,7 @@ import { deckItems } from "@/server/schema";
 import { eq, asc, max } from "drizzle-orm";
 import { getCurrentUser } from "@/lib/auth"; 
 
-// 1. POBIERANIE WSZYSTKICH ELEMENTÓW
+// GETTING ALL STORYBOARD ITEMS
 export async function getStoryboardItems(storyboardId: string) {
   try {
     const user = await getCurrentUser();
@@ -13,7 +13,7 @@ export async function getStoryboardItems(storyboardId: string) {
     return await db.select()
       .from(deckItems)
       .where(eq(deckItems.deckId, storyboardId))
-      .orderBy(asc(deckItems.order)); // Sortowanie po order jest tu kluczowe
+      .orderBy(asc(deckItems.order));
       
   } catch (error) {
     console.error("Failed to fetch storyboard items:", error);
@@ -21,7 +21,7 @@ export async function getStoryboardItems(storyboardId: string) {
   }
 }
 
-// 2. TWORZENIE NOWEGO WYDARZENIA
+// CREATING NEW EVENT
 export async function createStoryboardItem(storyboardId: string) {
   try {
     const user = await getCurrentUser();
@@ -35,15 +35,13 @@ export async function createStoryboardItem(storyboardId: string) {
       
     const nextOrder = (highestOrderRecord?.maxOrder ?? -1) + 1;
 
-    // Tworzymy pusty wpis (szkielet)
+    // SKELETION ITEM FOR DB 
     const [newItem] = await db.insert(deckItems).values({
       deckId: storyboardId,
       order: nextOrder,
-      title: "New Event", // Domyślne wartości
+      title: "New Event",
       dateLabel: "",
       description: "",
-      // Jeśli do odróżnienia fiszek od historii używasz partOfSpeech, możesz to tu ustawić:
-      // partOfSpeech: "story_event" 
     }).returning();
 
     return { success: true, id: newItem.id };
@@ -53,7 +51,7 @@ export async function createStoryboardItem(storyboardId: string) {
   }
 }
 
-// 3. AKTUALIZACJA WYDARZENIA
+// UDPATE EVENT
 export async function updateStoryboardItem(id: string, data: any) {
   try {
     const user = await getCurrentUser();
@@ -77,7 +75,7 @@ export async function updateStoryboardItem(id: string, data: any) {
   }
 }
 
-// 4. USUWANIE WYDARZENIA
+// DELETE EVENT
 export async function deleteStoryboardItem(id: string | undefined) {
   try {
     const user = await getCurrentUser();
@@ -95,17 +93,14 @@ export async function deleteStoryboardItem(id: string | undefined) {
   }
 }
 
-// 5. ZMIANA KOLEJNOŚCI (DRAG & DROP)
-// Przyjmuje tablicę obiektów: [{ id: "uuid-1", order: 0 }, { id: "uuid-2", order: 1 }, ...]
+// ORDER CHANGE 
 export async function reorderStoryboardItems(newOrder: { id: string; order: number }[]) {
   try {
     const user = await getCurrentUser();
     if (!user) return { success: false, error: "Unauthorized" };
-
+    
     if (!newOrder || newOrder.length === 0) return { success: true };
-
-    // Drizzle ORM nie ma (jeszcze) natywnego, masowego "upsert/updateMany" dla różnych wartości,
-    // więc musimy użyć Promise.all do wysłania równoległych zapytań aktualizujących.
+    
     await Promise.all(
       newOrder.map((item) =>
         db.update(deckItems)

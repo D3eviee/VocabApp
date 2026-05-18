@@ -1,11 +1,11 @@
 "use client";
 import { useTransition } from "react";
 import { useModal } from "@/store/modal-store";
-import { Trash2, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { BaseDialog } from "./BaseDialog";
 import { deleteStoryboardItem } from "@/app/actions/storyboard"; 
-import { deleteCardAction } from "@/app/actions/queries"; 
 import { useQueryClient } from "@tanstack/react-query";
+import { deleteCardAction } from "@/app/actions/flashcards";
 
 export const DeleteItemDialog = () => {
   const { isOpen, type, onClose, data } = useModal();

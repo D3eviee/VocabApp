@@ -1,8 +1,7 @@
 'use server'
 import { db } from "@/server/db";
-import { deckItems, users, decks } from "@/server/schema";
-import { eq, lte, desc, and, ne} from "drizzle-orm";
-import { addDays, isToday, isYesterday } from "date-fns";
+import { deckItems, decks } from "@/server/schema";
+import { eq, desc, and, ne} from "drizzle-orm";
 import { getCurrentUser } from "@/lib/auth";
 
 // GET FLASHCARD DECK ITEMS

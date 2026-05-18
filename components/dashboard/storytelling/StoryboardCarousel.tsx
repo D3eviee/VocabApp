@@ -9,7 +9,7 @@ interface StoryboardCarouselProps {
 
 export const StoryboardCarousel = ({storyParts, activeIndex, setActiveIndex }: StoryboardCarouselProps) => {
   return (
-    <div className='w-full h-[60vh] min-h-125 relative flex justify-center items-center py-6 overflow-hidden'>
+    <div className='w-full h-full relative flex justify-center items-center overflow-hidden'>
       {storyParts.map((part: any, index: number) => {
         const offset = index - activeIndex;
 

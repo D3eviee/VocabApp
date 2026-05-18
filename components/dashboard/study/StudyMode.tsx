@@ -4,11 +4,11 @@ import { useQuery } from '@tanstack/react-query';
 import { getDueDeckItems } from '@/app/actions/queries';
 import { SessionEndView } from './SessionEndView';
 import { SessionEmptyView } from './SessionEmptyView';
-import { StudyModeHeader } from './StudyModeHeader';
+import { StudyModeHeader } from '../StudyModeHeader';
 import { FlashcardView } from './FlashcardView';
 import { StudyModeControls } from './StudyModeControls';
 
-export default function StudyMode({ deckId, deckTitle }: { deckId: string, deckTitle: string }) {
+export default function StudyMode({ deckId }: { deckId: string }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [isFinished, setIsFinished] = useState(false);
@@ -28,8 +28,8 @@ export default function StudyMode({ deckId, deckTitle }: { deckId: string, deckT
  
   return (
     <div className='w-full h-full md:min-h-full flex flex-col'>
-      <div className="relative flex-1 w-full bg-white mx-auto flex flex-col  overflow-hidden">
-        <StudyModeHeader deckTitle={deckTitle}/>
+      <div className="relative flex-1 w-full bg-white mx-auto flex flex-col overflow-hidden">
+        <StudyModeHeader/>
 
         <div className='flex-1 w-full min-h-0 md:w-120 mx-auto'>
           <FlashcardView 

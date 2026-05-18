@@ -2,13 +2,18 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { BookMarked } from 'lucide-react';
-import NavbarNavigation from './NavbarNavigation';
 import NavbarOptions from './NavbarOptions';
-import NavbarSearchMenu from './NavbarSearchMenu';
 import NavbarProfileMenu from './NavbarProfileMenu';
 
-export default function Navbar() {
-  // STATES FOR OPENING SEARCH AND PROFILE NAVBAR MENUS
+type NavbarUserProps = {
+  id: string;
+  firstName: string | null;
+  email: string;
+  streak: number | null;
+  lastStudyDate: Date | null;
+} | null;
+
+export default function Navbar({ user }: { user: NavbarUserProps }) {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
@@ -33,7 +38,6 @@ export default function Navbar() {
     const handleScroll = () => {
       if (isMenuOpen) closeAllMenus();
     }
-
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, [isSearchOpen, isProfileOpen]);
@@ -41,16 +45,15 @@ export default function Navbar() {
   return (
     <>
       <div 
-        className={`inset-0 z-60 transition-all duration-500 ease-in-out shadow-2xl ${
-          isMenuOpen ? 'opacity-100 visible backdrop-blur-md' : 'opacity-0 invisible pointer-events-none backdrop-blur-none' }`} 
+        className={`fixed inset-0 z-60 transition-all duration-500 ease-in-out shadow-2xl ${
+          isMenuOpen ? 'opacity-100 visible backdrop-blur-md' : 'opacity-0 invisible pointer-events-none backdrop-blur-none' 
+        }`} 
         onClick={closeAllMenus}
       />
       
       <nav 
         onMouseLeave={closeAllMenus}
-        className={`sticky top-0 z-150 transition-colors duration-300 bg-white border-b-[0.5px] border-[#F2F2F2] ${
-          isMenuOpen ?? "backdrop-blur-xl"
-        }`}
+        className="sticky top-0 z-150 transition-colors duration-300 bg-white border-b-[0.5px] border-[#F2F2F2]"
       >
         <div className="max-w-5xl me-auto ms-auto px-4 h-14 flex items-center justify-between relative">
           <Link href="/dashboard" className="flex items-center gap-2.5">
@@ -59,19 +62,16 @@ export default function Navbar() {
             </div>
             <span className="text-xl font-extrabold tracking-tighter text-gray-950 hidden md:block">VocabApp</span>
           </Link>
-
-          {/* <NavbarNavigation /> */}
           
           <NavbarOptions 
+            firstName={user?.firstName || "U"}
             isSearchOpen={isSearchOpen} 
             toggleProfile={toggleProfile} 
             toggleSearch={toggleSearch}
           />
         </div>
 
-        {/* MENUS FOR SEARCH AND PROFILE */}
-        <NavbarSearchMenu isSearchOpen={isSearchOpen} />
-        <NavbarProfileMenu isProfileOpen={isProfileOpen} />
+        <NavbarProfileMenu firstName={user?.firstName || "user"} isProfileOpen={isProfileOpen} />
       </nav>
     </>
   );

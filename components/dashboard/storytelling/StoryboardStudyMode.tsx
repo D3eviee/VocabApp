@@ -1,25 +1,20 @@
 "use client";
 import { useState, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft, History } from 'lucide-react';
 import Link from 'next/link';
-import { getDeckItems } from '@/app/actions/queries';
 import Button from '../ui/Button';
-import { StoryboardStudyModeHeader } from './StoryboardStudyModeHeader';
 import StoryboardStudyModeControls from './StoryboardStudyModeControlsButton';
 import { StoryboardCarousel } from './StoryboardCarousel';
+import { useStoryboardQueries } from '@/lib/hooks/useStoryboardQueries';
+import { StudyModeHeader } from '../StudyModeHeader';
 
-export default function StoryboardStudyMode({ storyboardId }: { storyboardId: string }) {
+export const StoryboardStudyMode = ({ storyboardId }: { storyboardId: string }) => {
   const [activeIndex, setActiveIndex] = useState(0);
 
-  const { data: storyParts = [], isLoading } = useQuery({
-    queryKey: ['story-items', storyboardId],
-    queryFn: async () => {
-      const items = await getDeckItems(storyboardId);
-      return items.sort((a: any, b: any) => (a.order || 0) - (b.order || 0));
-    },
-  });
+  const { storyQuery } = useStoryboardQueries(storyboardId);
+  const { data: storyParts = [], isLoading } = storyQuery;
 
+  // KEYBOARD 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'ArrowRight' && activeIndex < storyParts.length - 1) setActiveIndex(prev => prev + 1);
@@ -29,7 +24,6 @@ export default function StoryboardStudyMode({ storyboardId }: { storyboardId: st
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [activeIndex, storyParts.length]);
 
-  // Automatyczne przewijanie osi czasu do aktywnego elementu
   useEffect(() => {
     const timelineElement = document.getElementById(`timeline-node-${activeIndex}`);
     if (timelineElement) {
@@ -37,7 +31,7 @@ export default function StoryboardStudyMode({ storyboardId }: { storyboardId: st
     }
   }, [activeIndex]);
 
-  if (isLoading) return <div className="h-screen flex items-center justify-center bg-[#F5F5F7]">Wczytywanie osi czasu...</div>;
+  if (isLoading) return <div className="h-screen flex items-center justify-center bg-[#F5F5F7]">Loading your storyboard...</div>;
 
   if (storyParts.length === 0) {
     return (
@@ -45,10 +39,10 @@ export default function StoryboardStudyMode({ storyboardId }: { storyboardId: st
         <div className="p-4 bg-gray-100 rounded-full mb-4 text-gray-400">
           <History size={40} />
         </div>
-        <p className="text-gray-500 font-medium mb-6">Ta oś czasu nie ma jeszcze żadnych wydarzeń.</p>
+        <p className="text-gray-500 font-medium mb-6">No events for this storyboard</p>
         <Link href={`/dashboard/storyboard/${storyboardId}/edit`}>
           <Button variant="secondary" className="gap-2">
-            <ArrowLeft size={16} /> Wróć do edytora
+            <ArrowLeft size={16} /> Back to editor
           </Button>
         </Link>
       </div>
@@ -56,16 +50,12 @@ export default function StoryboardStudyMode({ storyboardId }: { storyboardId: st
   }
 
   return (
-    <div className='bg-[#F2F2F2] h-[calc(100vh-56px)] border-2'>
-      <div className="max-w-5xl me-auto ms-auto flex flex-col items-center mt-12 bg-white rounded-3xl border shadow-2xs">
-        <StoryboardStudyModeHeader
-          cardsCount={storyParts.length}
-          currentIndex={activeIndex}
-          storyParts={storyParts}
-        />
+    <div className='w-full h-full md:min-h-full flex flex-col'>
+      <div className="relative flex-1 w-full bg-white mx-auto flex flex-col overflow-hidden">
+        <StudyModeHeader/>
 
         {/* STUDY AREA */}
-        <main className="w-full flex flex-col items-center justify-center pb-8">
+        <main className="h-full w-full flex flex-col items-center justify-center px-4">
           <StoryboardCarousel
             storyParts={storyParts} 
             activeIndex={activeIndex} 

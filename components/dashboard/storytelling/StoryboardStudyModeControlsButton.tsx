@@ -9,7 +9,7 @@ interface StoryboardStudyModeControlsProps {
 
 export default function StoryboardStudyModeControls({ onPrev, onNext, canPrev, canNext }: StoryboardStudyModeControlsProps) {
   return (
-    <div className="flex items-center justify-center gap-8 mt-2">
+    <div className="flex items-center justify-center gap-8 mt-2 md:mb-20">
       <button 
         onClick={onPrev}
         disabled={!canPrev}

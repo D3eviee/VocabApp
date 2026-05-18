@@ -1,6 +1,6 @@
 import { Layers, Flame, Target } from 'lucide-react';
 import { DashboardSummaryItem } from './DashboardSummaryItem';
-import { getUserStats } from '@/server/queries/users';
+import { getUserStats } from '@/app/actions/user';
 
 export const DashboardSummary = async () => {
   const stats = await getUserStats();

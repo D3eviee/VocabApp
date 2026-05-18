@@ -4,7 +4,40 @@ import { CreateDeckState } from "@/lib/types";
 import { db } from "@/server/db";
 import { deckItems, decks } from "@/server/schema";
 import { revalidatePath } from "next/cache";
-import { eq, and } from "drizzle-orm";
+import { eq, and, count, lte, ne, desc } from "drizzle-orm";
+
+export const getUserDecks = async () => {
+  const user = await getCurrentUser();
+  if (!user) return [];
+
+  const today = new Date();
+
+  return await db
+    .select(
+      {
+        id: decks.id,
+        title: decks.title,
+        type: decks.type,
+        dueCardsCount: count(deckItems.id) 
+      }
+    )
+    .from(decks)
+    .leftJoin(
+      deckItems,
+      and(
+        eq(decks.id, deckItems.deckId),
+        ne(deckItems.partOfSpeech, "draft"), 
+        lte(deckItems.dueDate, today)
+      )
+    )
+    .where(
+      and(
+        eq(decks.userId, user.id),
+      ))
+    .groupBy(decks.id) 
+    .orderBy(desc(decks.createdAt));
+}
+
 
 export async function createDeckAction(_prevState: CreateDeckState, formData: FormData ): Promise<CreateDeckState> {
   const titleRaw = formData.get("title")?.toString() || "";
@@ -66,7 +99,6 @@ export async function deleteDeckAction(deckId: string) {
     return { success: false, error: "An unexpected error occurred while deleting." };
   }
 }
-
 
 export async function resetDeckProgressAction(deckId: string) {
   try {

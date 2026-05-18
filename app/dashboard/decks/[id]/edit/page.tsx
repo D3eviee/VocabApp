@@ -1,6 +1,6 @@
 import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query';
 import DeckEditor from "@/components/dashboard/DeckEditor";
-import { getFlashcardDeckItems } from '@/app/actions/queries';
+import { getFlashcardDeckItems } from '@/app/actions/flashcards';
 
 type Params = Promise<{ id: string }>;
 

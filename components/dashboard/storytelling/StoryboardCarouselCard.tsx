@@ -16,7 +16,7 @@ export const StoryboardCarouselCard = ({ card, isActive, className = '', onClick
   const [isTitleRevealed, setIsTitleRevealed] = useState(false);
   const [isDescriptionRevealed, setIsDescriptionRevealed] = useState(false);
 
-  // Resetujemy oba pola, gdy użytkownik przesunie karuzelę dalej
+  // RESETING FIELDS
   useEffect(() => {
     if (!isActive) {
       setIsTitleRevealed(false);
@@ -41,13 +41,13 @@ export const StoryboardCarouselCard = ({ card, isActive, className = '', onClick
   return (
     <div 
       onClick={onClick}
-      className={`absolute w-full max-w-2xl min-h-112.5 bg-white rounded-3xl p-6 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] flex flex-col border-2 
+      className={`absolute w-full border-[0.5px] border-[#F2F2F2] md:max-w-140 h-full md:max-h-120 rounded-4xl px-6 py-10 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] flex flex-col 
       ${className}`}
     >
       {/* DATE */}
       {card.dateLabel && (
         <div className="mb-6 text-center">
-          <span className="px-4 py-2 bg-amber-100 text-amber-800 rounded-xl text-xl font-black tracking-widest uppercase">{card.dateLabel}</span>
+          <span className="px-4 py-2 bg-[#4F39F6] text-white rounded-xl text-xl font-black tracking-widest uppercase">{card.dateLabel}</span>
         </div>
       )}
 
@@ -55,13 +55,13 @@ export const StoryboardCarouselCard = ({ card, isActive, className = '', onClick
       {!isTitleRevealed ? (
         <div 
           onClick={(e) => {flipTitle(e)}}
-          className="py-8 flex items-center justify-center border-2 border-dashed border-gray-200 rounded-2xl bg-gray-50/50 transition-all duration-200 cursor-pointer hover:bg-gray-100 hover:border-gray-300"
+          className="py-8 flex items-center justify-center  rounded-2xl bg-gray-50/50 transition-all duration-200 cursor-pointer hover:bg-gray-100 hover:border-gray-300"
         >
           <p className="text-sm font-bold text-gray-400 uppercase tracking-widest">Tap to reveal title</p>
         </div>
       ) : (
         <div className="flex flex-col animate-in duration-150">
-          <h2 className="text-center text-4xl font-black text-gray-900  leading-tight">{card.title}</h2>
+          <h2 className="text-center text-4xl font-black text-[#333] leading-tight">{card.title}</h2>
         </div>
       )}
 
@@ -72,7 +72,7 @@ export const StoryboardCarouselCard = ({ card, isActive, className = '', onClick
       {(card.description && !isDescriptionRevealed) ? (
         <div 
           onClick={(e) => {flipDescription(e)}}
-          className="py-14 flex items-center justify-center border-2 border-dashed border-gray-200 rounded-2xl bg-gray-50/50 transition-all duration-200 cursor-pointer hover:bg-gray-100 hover:border-gray-300"
+          className="py-14 flex items-center justify-center rounded-2xl bg-gray-50/50 transition-all duration-200 cursor-pointer hover:bg-gray-100 hover:border-gray-300"
         >
           <p className="text-sm font-bold text-gray-400 uppercase tracking-widest">Tap to reveal description</p>
         </div>
