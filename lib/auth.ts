@@ -23,6 +23,9 @@ export async function getCurrentUser() {
             email: users.email,
             streak: users.streak,
             lastStudyDate: users.lastStudyDate,
+            stripeCustomerId: users.stripeCustomerId,
+            stripeCurrentPeriodEnd: users.stripeCurrentPeriodEnd,
+            stripeCancelAtPeriodEnd: users.stripeCancelAtPeriodEnd,
         })
         .from(users)
         .where(eq(users.id, userId))

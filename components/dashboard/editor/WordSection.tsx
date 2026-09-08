@@ -33,11 +33,11 @@ export const WordSection = ({ wordValue, partOfSpeechValue, onWordChange, onPosC
       
       <div className="w-full md:min-w-48 flex flex-col">
         <label className="text-[13px] font-bold text-gray-400 uppercase tracking-wider mb-2">Type</label>
-        <div className='w-full flex flex-row  gap-4'>
+        <div className='w-full flex flex-row h-full  gap-4'>
           <select 
             value={partOfSpeechValue || "draft"} 
             onChange={(e) => onPosChange(e.target.value)} 
-            className="w-full text-[#333] font-semibold rounded-xl p-3 outline-none border-[0.5px] border-transparent bg-[#F2F2F2] focus:border-[#E1E1E1]"
+            className="w-full text-[#333] font-semibold rounded-xl px-3 py-2.5 outline-none border-[0.5px] border-transparent bg-white focus:border-[#E1E1E1]"
           >
             {POS_OPTIONS.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}
           </select>

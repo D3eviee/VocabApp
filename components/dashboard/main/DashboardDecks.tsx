@@ -1,33 +1,40 @@
-import { getUserDecks } from '@/app/actions/decks';
 import { FlashcardDeckThumbnail } from './FlashcardDeckThumbnail';
 import { StoryboardDeckThumbnail } from './StoryboardDeckThumbnail';
+import { PlaygroundDeckThumbnail } from './PlaygroundDeckThumbnail';
+import { DashboardSection } from './DashboardSection';
+import { getUserDecks, getUserPlaygrounds } from '@/lib/data/dashboard';
 
-export const DashboardDecks = async () =>  {  
-    const decks = await getUserDecks();
-    if (decks.length === 0) return <div className="text-gray-500 py-25  text-center font-light">You don't have any decks yet.</div>
+export const DashboardDecks = async () => {
+    const [decks, userPlaygrounds] = await Promise.all([
+        getUserDecks(),
+        getUserPlaygrounds()
+    ]);
+
+    if (decks.length === 0 && userPlaygrounds.length === 0) 
+        return <div className="text-gray-500 py-25 text-center font-light">You don't have any content yet.</div>
 
     const classic = decks.filter(deck => deck.type === "classic");
     const storyboards = decks.filter(deck => deck.type === "storytelling");
 
     return (
-        <div className='w-full flex flex-col gap-8'>
+        <div className='w-full flex flex-col gap-16 pb-12'>
             {classic.length > 0 && (
-                <div className='flex flex-col'>
-                    <h2 className="text-3xl font-semibold mb-4 text-[#111]">Decks</h2>
-                    <div className="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                        {classic.map((deck) => <FlashcardDeckThumbnail key={deck.id} deck={deck} />)}
-                    </div>
-                </div>
+                <DashboardSection title="Decks">
+                    {classic.map(deck => <FlashcardDeckThumbnail key={deck.id} deck={deck} />)}
+                </DashboardSection>
             )}
-            
+
             {storyboards.length > 0 && (
-                <div className='flex flex-col'>
-                    <h2 className="text-3xl font-semibold mb-4 text-[#111]">Storyboards</h2>
-                    <div className="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                        {storyboards.map((deck) => <StoryboardDeckThumbnail key={deck.id} deck={deck} />)}
-                    </div>
-                </div>
+                <DashboardSection title="Storyboards">
+                    {storyboards.map(deck => <StoryboardDeckThumbnail key={deck.id} deck={deck} />)}
+                </DashboardSection>
             )}
-        </div>  
+
+            {userPlaygrounds.length > 0 && (
+                <DashboardSection title="Playgrounds">
+                    {userPlaygrounds.map(pg => <PlaygroundDeckThumbnail key={pg.id} playground={pg} />)}
+                </DashboardSection>
+            )}
+        </div>
     );
 }

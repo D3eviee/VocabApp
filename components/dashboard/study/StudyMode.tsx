@@ -40,7 +40,7 @@ export default function StudyMode({ deckId }: { deckId: string }) {
           />
         </div>
 
-        <div className="w-full shrink-0 px-4 md:pb-10">
+        <div className="w-full shrink-0 px-4 mb-10 md:pb-10">
           <StudyModeControls
             deckId={deckId}
             currentIndex={currentIndex}

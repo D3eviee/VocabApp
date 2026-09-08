@@ -27,7 +27,8 @@ export default async function Dashboard() {
           <DashboardDecks />
         </Suspense>
         
-        <AddDeckButton/>
+        {/* NEED TO REFACTOR ! */}
+        <AddDeckButton/>        
       </div>
     </div>
   );

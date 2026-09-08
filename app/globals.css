@@ -15,6 +15,32 @@
   --text-13: 13px;
   --text-15: 15px;
   --text-13--line-height: 16px;
+
+  --color-heading: #111111;
+  --color-subheading: #494949;
+  --color-light-border: #EFEEF4;
+  --color-hover-border: #D4D4D4;
+}
+
+
+@utility bg-main-gradient {
+  @apply bg-linear-to-tr from-[#6155f5] to-[#CB30E0]
+}
+
+@layer utilities {
+  .heading-primary {
+    font-size: 1.875rem;
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    line-height: 1;
+    color: var(--color-heading);
+  }
+
+  .subheading {
+    font-size: 1rem;
+    line-height: 1;
+    color: var(--color-subheading);
+  }
 }
 
 @media (prefers-color-scheme: dark) {

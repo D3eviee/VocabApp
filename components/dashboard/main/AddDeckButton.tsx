@@ -1,5 +1,5 @@
 "use client";
-import { useState, useRef, useEffect, MouseEvent } from "react";
+import { useState, useRef, MouseEvent } from "react";
 import { Plus, Layers, Presentation, X } from "lucide-react";
 import { useOnClickOutside } from "@/lib/hooks/useOnClickOutside";
 import { useModal } from "@/store/modal-store";
@@ -44,7 +44,8 @@ export const AddDeckButton = () => {
                         </div>
                         <span className="font-semibold text-sm text-white">Classic Deck</span>
                     </button>
-                    
+
+
                     <button 
                         onClick={(e) => { handleNewDeck(e, "createRoadmap") }} 
                         className="flex items-center gap-3 p-2 rounded-2xl duration-75 transition-all hover:bg-[#222] hover:cursor-pointer active:scale-95"

@@ -30,7 +30,7 @@ export default function DeckEditor({ deckId }: { deckId: string }) {
   if (!isMounted) return null;
 
   return (
-    <div className="inset-0 flex flex-row bg-white lg:bg-[#F5F5F7] overflow-hidden w-full">
+    <div className="inset-0 flex flex-row bg-white lg:bg-[#F5F5F7] overflow-hidden w-full h-full">
       <div className={`${mobileView === 'editor' ? 'hidden lg:flex' : 'flex'} w-full lg:w-80 shrink-0 h-full`}>
         <DeckMenu deckId={deckId} onNavigateToEditor={handleCardSelectOnMobile}/>
       </div>

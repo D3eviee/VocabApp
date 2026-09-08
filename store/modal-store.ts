@@ -3,15 +3,23 @@ import { create } from 'zustand';
 export type ModalType = 
   | "createDeck" 
   | "createRoadmap" 
+  | "createPlayground"
   | "deleteDeckConfirm" 
   | "resetDeckConfirm" 
-  | "deleteItemConfirm";
+  | "deleteItemConfirm"
+  | "editProfile" 
+  | "editSecurity" 
+  | "deleteAccountConfirm"
+  | "subscription"
+  | "aiDeckGenerator"
 
 export interface ModalData {
   deckId?: string;
   itemId?: string;
   itemType?: "flashcard" | "storyboardEvent"; 
   onSuccess?: () => void; 
+  user?: { firstName: string; email: string };
+  subscription?: {isPro: boolean, periodEnd: Date | null, cancelAtPeriodEnd: boolean}
 }
 
 interface ModalStore {

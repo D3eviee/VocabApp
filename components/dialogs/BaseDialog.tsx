@@ -26,7 +26,7 @@ export const BaseDialog = ({ isOpen, type, targetType, children }: BaseDialogPro
             <div className="absolute inset-0 bg-gray-950/20 backdrop-blur-md transition-opacity" />
             
             {/* DIALOG BOX */}
-            <div className="relative bg-white w-full max-w-md rounded-4xl shadow-2xl px-6 py-8 md:px-8 md:max-w-100 animate-in fade-in zoom-in-95 duration-200">
+            <div className="relative bg-white w-full max-w-md rounded-4xl shadow-2xl px-4 py-6 md:max-w-100 animate-in fade-in zoom-in-95 duration-200">
                 {children}
             </div>
         </div>

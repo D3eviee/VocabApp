@@ -4,42 +4,24 @@ import { CreateDeckState } from "@/lib/types";
 import { db } from "@/server/db";
 import { deckItems, decks } from "@/server/schema";
 import { revalidatePath } from "next/cache";
-import { eq, and, count, lte, ne, desc } from "drizzle-orm";
-
-export const getUserDecks = async () => {
-  const user = await getCurrentUser();
-  if (!user) return [];
-
-  const today = new Date();
-
-  return await db
-    .select(
-      {
-        id: decks.id,
-        title: decks.title,
-        type: decks.type,
-        dueCardsCount: count(deckItems.id) 
-      }
-    )
-    .from(decks)
-    .leftJoin(
-      deckItems,
-      and(
-        eq(decks.id, deckItems.deckId),
-        ne(deckItems.partOfSpeech, "draft"), 
-        lte(deckItems.dueDate, today)
-      )
-    )
-    .where(
-      and(
-        eq(decks.userId, user.id),
-      ))
-    .groupBy(decks.id) 
-    .orderBy(desc(decks.createdAt));
-}
+import { eq, and,} from "drizzle-orm";
+import { verifyDeckLimit } from "@/lib/subscription";
 
 
 export async function createDeckAction(_prevState: CreateDeckState, formData: FormData ): Promise<CreateDeckState> {
+  const user = await getCurrentUser();
+  if (!user) return { success: false, error: "User is unauthorzed" };
+
+  // LIMIT VERIFICATION (PAYWALL)
+  const canCreate = await verifyDeckLimit(user.id);
+  if (!canCreate) {
+    return { 
+      success: false, 
+      error: "Limit reached. Upgrade to pro plan.",
+      requiresUpgrade: true, // TAG FOR FRONTEND
+    };
+  }
+
   const titleRaw = formData.get("title")?.toString() || "";
   const title = titleRaw.trim().replace(/\s+/g, " ");
   if (!title) return { success: false, error: "Title is required." };

@@ -7,11 +7,14 @@ import { SubmitButton } from "../auth/SubmitButton";
 import { BaseModal } from "./BaseModal";
 import { createDeckAction } from "@/app/actions/decks";
 import { CreateDeckState } from "@/lib/types";
+import { CancelButton } from "../dashboard/ui/CancelButton";
+import { ErrorMessage } from "../dashboard/ui/ErrorMessage";
+import { error } from "console";
 
 const initialState: CreateDeckState = { success: false };
 
-export default function CreateDeckModal() {
-  const { isOpen, type, onClose } = useModal();
+export const CreateDeckModal = () => {
+  const { isOpen, onClose } = useModal();
   const router = useRouter();
   const [state, formAction, isPending] = useActionState(createDeckAction, initialState);
 
@@ -23,10 +26,10 @@ export default function CreateDeckModal() {
   }, [state.success, state.deckId, onClose, router]);
 
   return (
-    <BaseModal 
+    <BaseModal
+      onClose={onClose} 
       title="New Deck" 
       isOpen={isOpen} 
-      type={type} 
       targetType="createDeck"
     >
       <form action={formAction} className="flex flex-col">
@@ -40,13 +43,14 @@ export default function CreateDeckModal() {
           defaultValue={state.title || ""} 
         />
         
-        {state?.error && (
-          <p className="text-[13px] font-medium text-red-500 text-center animate-in fade-in slide-in-from-bottom-1">{state.error}</p>
-        )}
-
-        <SubmitButton isPending={isPending}>
-          {isPending ? "Creating..." : "Create"}
-        </SubmitButton>
+        {state?.error && <ErrorMessage message={state.error}/>}
+        
+        <div className="flex flex-row gap-3 mt-6">
+          <CancelButton onClose={onClose}/>
+          <SubmitButton isPending={isPending}>
+              {isPending ? "Creating..." : "Create"}
+          </SubmitButton> 
+        </div>
       </form>
     </BaseModal>
   );
