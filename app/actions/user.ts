@@ -1,7 +1,7 @@
 'use server'
 import { db } from "@/server/db";
-import { deckItems, decks, users } from "@/server/schema";
-import { eq, lte, sql, and, ne} from "drizzle-orm";
+import { users } from "@/server/schema";
+import { eq } from "drizzle-orm";
 import { getCurrentUser } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";

@@ -6,39 +6,50 @@ import { EditCardPanel } from './EditCardPanel';
 import { useFlashcardQueries } from '@/lib/hooks/useFlashcardsQueries';
 
 export default function DeckEditor({ deckId }: { deckId: string }) {
-  const { activeCardId, setActiveCardId } = useEditorStore();
-  const [isMounted, setIsMounted] = useState(false);
+  const activeCardId = useEditorStore((state) => state.activeCardId);
+  const setActiveCardId = useEditorStore((state) => state.setActiveCardId);
   const [mobileView, setMobileView] = useState<'list' | 'editor'>('list');
 
+  // DATA FETCHING
   const { deckQuery } = useFlashcardQueries(deckId);
   const { data: cards = [] } = deckQuery;
 
+
   useEffect(() => {
-    setIsMounted(true);
+    const isDesktop = window.matchMedia('(min-width: 1024px)').matches;
+    if (isDesktop && cards.length > 0 && !activeCardId) {
+      setActiveCardId(cards[0].id);
+    }
+  }, [cards, activeCardId, setActiveCardId]);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(min-width: 1024px)');
+    const handleResize = (e: MediaQueryListEvent) => {
+      if (e.matches) setMobileView('list');
+    };
+      
+    mediaQuery.addEventListener('change', handleResize);
+    return () => mediaQuery.removeEventListener('change', handleResize);
   }, []);
 
-  useEffect(() => {
-    if (isMounted && cards.length > 0 && !activeCardId) {
-      if (window.innerWidth >= 1024) setActiveCardId(cards[0].id);
-    }
-  }, [isMounted, cards, activeCardId, setActiveCardId]);
-
   const handleCardSelectOnMobile = () => {
-    if (window.innerWidth < 1024) setMobileView('editor');
-  };
-
-  if (!isMounted) return null;
+    const isMobile = window.matchMedia('(max-width: 1023px)').matches;
+    if (isMobile) setMobileView('editor');
+  }
 
   return (
-    <div className="inset-0 flex flex-row bg-white lg:bg-[#F5F5F7] overflow-hidden w-full h-full">
+    <div className="relative flex flex-row  overflow-hidden w-full h-full">
       <div className={`${mobileView === 'editor' ? 'hidden lg:flex' : 'flex'} w-full lg:w-80 shrink-0 h-full`}>
         <DeckMenu deckId={deckId} onNavigateToEditor={handleCardSelectOnMobile}/>
       </div>
 
       <div className={`${mobileView === 'list' ? 'hidden lg:flex' : 'flex'} flex-1 h-full min-h-0`}>
         {activeCardId 
-          ? (<EditCardPanel deckId={deckId} onBack={() => setMobileView('list')} />) 
-          : (<div className="hidden lg:flex flex-1 items-center justify-center text-gray-400 bg-white lg:bg-transparent">Select or create a card to start editing</div>)
+          ? <EditCardPanel deckId={deckId} onBack={() => setMobileView('list')} />
+          : 
+            <div className="hidden lg:flex flex-1 items-center justify-center text-gray-400 bg-white lg:bg-transparent">
+              Select or create a card to start editing
+            </div>
         }
       </div>
     </div>

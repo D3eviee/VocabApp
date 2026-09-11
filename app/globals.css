@@ -24,6 +24,15 @@
   --color-error-secondary: #F74752;
   --color-confirm-primary: #1C7921;
   --color-confirm-secondary: #3CBF41;
+
+  --color-main-dark: #161618;
+  --color-secondary-dark: #5B5B60;
+  --color-main-light: #F2F2F5;
+  --color-secondary-light: #FAFAFC;
+
+  --color-button-secondary: #858589;
+  --color-button-background: #E6E6EC;
+  --color-button-blue: #0B51C3;
 }
 
 

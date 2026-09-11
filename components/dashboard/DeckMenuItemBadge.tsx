@@ -9,15 +9,17 @@ const badgeConfig: Record<string, { label: string; style: string }> = {
   conjunction:  { label: "Conjunction", style: "bg-indigo-50 text-indigo-700 border-indigo-200" },
   pronoun:      { label: "Pronoun", style: "bg-cyan-50 text-cyan-700 border-cyan-200" },
   interjection: { label: "Interjection", style: "bg-orange-50 text-orange-700 border-orange-200" },
-  draft:      { label: "Draft", style: "bg-gray-50 text-gray-500 border-gray-200" },
+  draft:        { label: "Draft", style: "bg-gray-50 text-gray-500 border-gray-200" },
 };
 
 export const DeckMenuItemBadge = ({ type }: {type: string}) => {
     const config = badgeConfig[type.toLowerCase()];
 
     return (
-        <span className={`shrink-0 w-fit inline-flex items-center px-2 rounded-md text-[10px] tracking-wide uppercase border-[0.5px] shadow-xs font-medium ${config.style}`}>
+        <div 
+            className={`shrink-0 w-fit inline-flex items-center px-1.5 leading-none rounded-md text-[10px] tracking-wide uppercase border-[0.5px] shadow-xs font-medium ${config.style}`}
+        >
             {config.label}
-        </span>
+        </div>
     );
 }

@@ -1,6 +1,7 @@
 import { db } from "@/server/db";
-import { decks } from "@/server/schema";
-import { and, eq } from "drizzle-orm";
+import { deckItems, decks } from "@/server/schema";
+import { and, desc, eq } from "drizzle-orm";
+import { getCurrentUser } from "../auth";
 
 // CREATES RECORD FOR DECKS BASED ON "DECKS" TABLE
 export async function createDeckRecord(title: string, userId: string, deckType: "classic" | "storyboard") {

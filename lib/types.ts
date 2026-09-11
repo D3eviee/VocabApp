@@ -1,4 +1,4 @@
-import { playgroundFlashcards, playgrounds } from "@/server/schema";
+import { Meaning, playgroundFlashcards, playgrounds, WordVariation } from "@/server/schema";
 import z from "zod";
 
 export type DeckThumbnail = {
@@ -6,6 +6,24 @@ export type DeckThumbnail = {
     title: string;
     type: "classic" | "storytelling";
     dueCardsCount: number
+}
+
+export type Flashcard = {
+  id: string;
+  deckId: string;
+  front: string | null;
+  partOfSpeech: string | null;
+  meanings: Meaning[];
+  variations: WordVariation[];
+  dateLabel: string | null;
+  title: string | null;
+  description: string | null;
+  order: number;
+  dueDate: Date;
+  interval: number;
+  easeFactor: number;
+  repetitions: number;
+  createdAt: Date;
 }
 
 export type PlaygroundThumbnail = {

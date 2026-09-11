@@ -1,25 +1,20 @@
 'use client'
 import { DeckMenuItemBadge } from "./DeckMenuItemBadge"
-import { useEditorStore } from "@/store/use-editor-store";
 
 type DeckMenuItemProps = {
-    id: string;
     front: string;
-    partOfSpeech: string,
+    partOfSpeech: string;
+    isActive?: boolean; 
 }
 
-export const DeckMenuItem = ({front, id, partOfSpeech}: DeckMenuItemProps) => {
-    const { activeCardId, setActiveCardId } = useEditorStore();
-    const isActive = activeCardId === id;
-    
+export const DeckMenuItem = ({front, isActive, partOfSpeech}: DeckMenuItemProps) => {
     return (
         <div
-            onClick={() => setActiveCardId(id)}
-            className={`flex w-full flex-col gap-1 px-6 py-4 rounded-xl transition-all duration-200  hover:cursor-pointer lg:flex-row lg:justify-between ${
-                isActive ? "md:bg-white md:hover:bg-white bg-[#F2F2F2]" : "hover:bg-[#F2F2F2] md:bg-[#F2F2F2] md:hover:bg-[#F9F9F9]"
+            className={`flex w-full px-6 py-4 rounded-2xl transition-all duration-200 flex-row justify-between ${
+                isActive ? "bg-button-background" : "hover:bg-button-background"
             }`}
         >
-            <h2 className="font-semibold text truncate text-[#2B2B2B]">{front || "New card"}</h2>
+            <h1 className="font-semibold truncate text-main-dark text-15">{front || "New card"}</h1>
             <DeckMenuItemBadge type={partOfSpeech} />
         </div>
   )

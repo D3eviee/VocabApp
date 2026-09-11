@@ -1,6 +1,6 @@
 import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query';
 import DeckEditor from "@/components/dashboard/DeckEditor";
-import { getFlashcardDeckItems } from '@/app/actions/flashcards';
+import { getCardsForFlashcardDeckAction } from '@/app/actions/flashcards';
 
 type Params = Promise<{ id: string }>;
 
@@ -10,7 +10,7 @@ export default async function DeckPage({ params }: { params: Params }) {
 
   await queryClient.prefetchQuery({
     queryKey: ['flashcards-items', id],
-    queryFn: () => getFlashcardDeckItems(id),
+    queryFn: () => getCardsForFlashcardDeckAction(id),
     staleTime: Infinity,
   });
 

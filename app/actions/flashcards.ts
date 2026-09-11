@@ -45,25 +45,22 @@ export async function createFlashcardsDeckAction(_prevState: CreateDeckState, fo
 }
 
 // GET FLASHCARD DECK ITEMS
-export async function getFlashcardDeckItems(deckId: string) {
+export async function getCardsForFlashcardDeckAction(deckId: string) {
   try {
     // AUTH
     const user = await getCurrentUser();
-    if (!user) throw new Error("Unauthorized");
+    if (!user) throw new Error( "Unauthorized. Please login." );
 
-    const items = await db.select()
+    const cards = await db
+      .select()
       .from(deckItems)
-      .where(
-        and(
-          eq(deckItems.deckId, deckId),
-          ne(deckItems.partOfSpeech, "draft")
-        )) 
+      .where(eq(deckItems.deckId, deckId))
       .orderBy(desc(deckItems.createdAt));
 
-    return items;
+    return cards; 
   } catch (error) {
     console.error("Failed to fetch flashcards:", error);
-    return [];
+    throw new Error("Failed to load flashcards. Please try again later.");
   }
 }
 
