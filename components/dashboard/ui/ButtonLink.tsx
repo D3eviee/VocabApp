@@ -18,7 +18,6 @@ export const ButtonLink = ({ href, variant = "primary", children, className = ""
         primary: "bg-[#1A1A1A] hover:bg-[#333] text-white",
         secondary: "bg-white border-2 border-light-border hover:bg-light-border text-heading",
         gradient: "outline-light-border text-white  bg-main-gradient hover:bg-linear-to-tl"
-
     };
 
     return (

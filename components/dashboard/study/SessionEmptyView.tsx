@@ -1,6 +1,6 @@
 import { ArrowLeft, Coffee } from 'lucide-react'
-import Button from '../ui/Button'
 import Link from 'next/link'
+import { Button } from '../ui/Button'
 
 export const SessionEmptyView = () => {
   return (

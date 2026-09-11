@@ -23,23 +23,16 @@ export type CreateDeckState = {
 };
 
 export const playgroundFormSchema = z.object({
-  title: z.string().min(2, "Title is too short").max(50),
-  type: z.enum(["upload", "search", "generate"]),
+  title: z.string().max(50),
+  type: z.enum(["upload", "catalog"]),
   query: z.string().optional(),
-  file: z.custom<FileList>().optional()
+  file: z.any().optional() 
 }).superRefine((data, ctx) => {
   if (data.type === "upload" && (!data.file || data.file.length === 0)) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       message: "Please select a .glb file",
       path: ["file"],
-    });
-  }
-  if ((data.type === "search" || data.type === "generate") && (!data.query || data.query.length < 2)) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: "Please provide a query or prompt",
-      path: ["query"],
     });
   }
 });

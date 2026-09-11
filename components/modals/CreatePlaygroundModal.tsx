@@ -1,29 +1,33 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useModal } from "@/store/modal-store";
-import { InputField } from "../auth/InputField";
-import { SubmitButton } from "../auth/SubmitButton";
+import { FloatingInputField } from "../auth/FloatingInputField";
 import { BaseModal } from "./BaseModal";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PlaygroundFormSchema, playgroundFormSchema } from "@/lib/types";
 import { createPlaygroundAction } from "@/app/actions/playgrounds";
-import { CancelButton } from "../dashboard/ui/CancelButton";
+import { Button } from "../dashboard/ui/Button";
+import { ErrorMessage } from "../dashboard/ui/ErrorMessage";
+import { FileCheck2 } from "lucide-react";
 
 export const CreatePlaygroundModal = () => {
-  const { isOpen, onClose } = useModal();
+  const { isOpen, onClose, type } = useModal();
   const router = useRouter();
+  const isModalOpen = isOpen && type === "createPlayground";
 
-  const { register, handleSubmit, watch, setValue, formState: { errors, isSubmitting }, reset, clearErrors} = useForm<PlaygroundFormSchema>({
+  const { register, handleSubmit, watch, setError, formState: { errors, isSubmitting } } = useForm<PlaygroundFormSchema>({
     resolver: zodResolver(playgroundFormSchema),
     defaultValues: {
       title: "",
-      type: "upload",
+      type: "upload", 
       query: "",
+      file: null
     },
   });
 
-  const playgroundCreationMethod = watch("type");
+  const selectedFiles = watch("file");
+  const currentFile = selectedFiles?.[0]; 
   
   const onSubmit = async (data: PlaygroundFormSchema) => {
     try {
@@ -35,7 +39,6 @@ export const CreatePlaygroundModal = () => {
         formData.append("modelFile", data.file[0]);
       }
       
-      // GENEROWANIE MINIATURY TYLKO DLA UPLOADU
       if (data.type === "upload") {
         const canvasElement = document.querySelector("canvas");
         if (canvasElement) {
@@ -50,63 +53,83 @@ export const CreatePlaygroundModal = () => {
         onClose();
         router.push(`/dashboard/playground/${result.playgroundId}/edit`);
       } else if (result?.error) {
-        console.error(result.error);
+        setError("root", { type: "server", message: result.error });
       }
     } catch (error) {
       console.error("Submission error:", error);
+      setError("root", { type: "server", message: "An unexpected application error occurred." });
     }
   }
 
   return (
-    <BaseModal title="Create" isOpen={isOpen} targetType="createPlayground" onClose={onClose}>
-      <form onSubmit={handleSubmit(onSubmit)} className="relative flex flex-col max-h-300px">
-        <div className="mb-6">
-          <InputField
-            key={isOpen ? "modal-open" : "modal-closed"}
-            label="Playground Title"
-            placeholder="e.g. Rocket Engine"
-            disabled={isSubmitting}
-            {...register("title")}
-          />
-          {errors.title && <p className="text-[11px] font-medium text-red-500 mt-1 pl-1 animate-in fade-in">{errors.title.message}</p> }
-        </div>
+    <BaseModal
+      title="New Playground" 
+      onClose={onClose} 
+      isOpen={isModalOpen} 
+    >
+      <form onSubmit={handleSubmit(onSubmit)} className="relative flex flex-col max-h-75">
+        <FloatingInputField
+          id="playground-title"
+          key={isModalOpen ? "modal-open" : "modal-closed"} 
+          label="Title" 
+          autoFocus
+          required 
+          disabled={isSubmitting}
+          {...register("title")}
+        />
 
-        <div className="flex flex-col gap-3">
-          <div className="flex flex-col">
-            <h1 className="text-black text-sm font-bold">Choose a starting point</h1>
-            <p className="text-[#2B2B2B] text-xs">How would you like to create your 3D scene?</p>
-          </div>
+        {errors.title?.message && <ErrorMessage message={errors.title.message}/>}
 
-
-          <div className="min-h-24 relative transition-all duration-300">
-            {playgroundCreationMethod === "upload" && (
-              <div className="animate-in fade-in slide-in-from-top-2 duration-300">
-                <label
-                  className={`flex flex-col items-center justify-center w-full h-24 border-2 border-dashed rounded-xl cursor-pointer hover:bg-gray-100 transition-colors
-                    ${errors.file ? "border-red-300 bg-red-50/30" : "border-[#D4D4D4] bg-gray-50"}`}
-                  htmlFor="model-file"
-                >
-                  <input
-                    type="file"
-                    accept=".glb,.gltf"
-                    className="hidden"
-                    id="model-file"
-                    disabled={isSubmitting}
-                    {...register("file")}
-                  />
-                  <p className="text-xs text-[#2B2B2B] font-medium">Click or drag .glb file here</p>
-                </label>
-                {errors.file && <p className="absolute -bottom-5 left-1 text-[11px] font-medium text-red-500">{errors.file.message as string}</p> }
+        <div className="animate-in fade-in slide-in-from-top-2 duration-300 h-full relative mt-3">
+          <label
+            className={`flex flex-col items-center justify-center w-full h-24 border border-dashed rounded-xl cursor-pointer transition-all duration-200
+              ${errors.file ? 
+                "border-error-primary bg-error-secondary/10 text-[#FFF]" : currentFile ? "border-confirm-secondary bg-confirm-secondary/10" : 
+                "border-hover-border bg-gray-50 hover:bg-gray-100"}`}
+            htmlFor="model-file"
+          >
+            <input
+              type="file"
+              accept=".glb,.gltf"
+              className="hidden"
+              id="model-file"
+              disabled={isSubmitting}
+              {...register("file")}
+            />
+            
+            {currentFile ? (
+              <div className="flex flex-col items-center text-center px-4 animate-in zoom-in-95 duration-200">
+                <FileCheck2 className="w-6 h-6 text-confirm-primary mb-1" />
+                <p className="text-sm text-confirm-secondary font-medium truncate max-w-50">{currentFile.name}</p>
+                <p className="text-[10px] text-confirm-secondary  mt-0.5 font-medium">{(currentFile.size / (1024 * 1024)).toFixed(2)} MB • Click to change</p>
               </div>
+            ) : (
+              <p className="text-xs text-[#2B2B2B] font-medium">Click or drag .glb file here</p>
             )}
-          </div>
+          </label>
+
+          {/* VALIDATION ERROR*/}
+          {errors.file && <p className="absolute -bottom-5 left-1 text-13 font-medium text-error-secondary">{errors.file.message as string}</p> }
         </div>
-        
-        <div className="flex flex-row gap-3 mt-6">
-          <CancelButton onClose={onClose}/>
-          <SubmitButton isPending={isSubmitting}>
-            {isSubmitting ? "Creating..." : "Create"}
-          </SubmitButton> 
+
+        {/* SERVER ERROR */}
+        {errors.root?.message && <ErrorMessage message={errors.root.message} /> }
+
+        <div className="flex flex-row gap-3 mt-10">
+          <Button 
+            type="button" 
+            variant="secondary" 
+            onClick={onClose}
+          >
+            Cancel
+          </Button>
+          <Button 
+            type="submit" 
+            variant="primary" 
+            isLoading={isSubmitting}
+          >
+            Create
+          </Button>
         </div>
       </form>
     </BaseModal>

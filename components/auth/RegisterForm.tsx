@@ -2,7 +2,7 @@
 import { useActionState, useEffect, useState } from "react";
 import { ActionState, registerAction } from "@/app/actions/auth";
 import { useRouter } from "next/navigation";
-import { InputField } from "./InputField";
+import { FloatingInputField } from "./FloatingInputField";
 import { FormHeader } from "./FormHeader"; 
 import { SubmitButton } from "./SubmitButton";
 
@@ -31,7 +31,7 @@ export default function RegisterForm() {
             <FormHeader title="Create an account" description="Start building your flashcard decks today."/>
             
             <form action={formAction} className="flex flex-col gap-3 mt-8">
-                <InputField
+                <FloatingInputField
                     key={`firstName-${state?.timestamp || 'initial'}`}
                     label="First name"
                     type="text"
@@ -43,7 +43,7 @@ export default function RegisterForm() {
                     required
                 />
 
-                <InputField
+                <FloatingInputField
                     key={`email-${state?.timestamp || 'initial'}`}
                     label="Email or Phone Number"
                     type="text"
@@ -55,7 +55,7 @@ export default function RegisterForm() {
                     required
                 />
                 
-                <InputField
+                <FloatingInputField
                     key={`pass1-${state?.timestamp || "initial"}`}
                     label="Password"
                     type="password"
@@ -65,7 +65,7 @@ export default function RegisterForm() {
                     required
                 />
 
-                <InputField
+                <FloatingInputField
                     key={`pass2-${state?.timestamp || "initial"}`}
                     label="Confirm Password"
                     type="password"

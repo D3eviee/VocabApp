@@ -3,6 +3,46 @@ import { db } from "@/server/db";
 import { deckItems, decks } from "@/server/schema";
 import { eq, desc, and, ne} from "drizzle-orm";
 import { getCurrentUser } from "@/lib/auth";
+import { CreateDeckState } from "@/lib/types";
+import { verifyLimits } from "@/lib/subscription";
+import { revalidatePath } from "next/cache";
+import { createDeckRecord } from "@/lib/data/decks";
+
+// CREATES NEW FLASHCARDS DECK
+export async function createFlashcardsDeckAction(_prevState: CreateDeckState, formData: FormData ): Promise<CreateDeckState> {
+  const titleRaw = formData.get("title")?.toString() || "";
+  const title = titleRaw.trim().replace(/\s+/g, " ");
+  if (!title) return { success: false, error: "Title is required." };
+
+  try {
+    const user = await getCurrentUser();
+    if (!user) return { success: false, error: "User is unauthorized" };
+
+    // LIMIT VERIFICATION (PAYWALL)
+    const canCreate = await verifyLimits(user.id, "classic");
+    if (!canCreate) {
+      return { 
+        success: false, 
+        error: "Limit reached. Upgrade to pro plan.",
+        requiresUpgrade: true, // FLAG FOR FRONTEND
+      };
+    }
+    
+    const newDeck = await createDeckRecord(title, user.id, "classic")
+    if (!newDeck || !newDeck.id) return { success: false, error: "Failed to create deck. Please try again later." };
+
+    revalidatePath("/dashboard/decks");
+    return { success: true, deckId: newDeck.id };
+  }catch (error) {
+    console.error("[CREATE_DECK_ERROR]", error);
+
+    return { 
+      success: false, 
+      error: "An unexpected error occurred.", 
+      title 
+    }
+  }
+}
 
 // GET FLASHCARD DECK ITEMS
 export async function getFlashcardDeckItems(deckId: string) {

@@ -2,7 +2,7 @@
 import { useActionState, useEffect, useState } from "react";
 import { ActionState, loginAction } from "@/app/actions/auth";
 import { useRouter } from "next/navigation";
-import { InputField } from "./InputField";
+import { FloatingInputField } from "./FloatingInputField";
 import { FormHeader } from "./FormHeader";
 import { SubmitButton } from "./SubmitButton";
 
@@ -26,7 +26,7 @@ export default function LoginForm() {
             <FormHeader title="Welcome back" description="Enter your details to access your decks."/>
             
             <form action={formAction} className="flex flex-col gap-3">
-                <InputField
+                <FloatingInputField
                     label="Email or Phone Number"
                     type="text"
                     name="email"
@@ -36,7 +36,7 @@ export default function LoginForm() {
                     onChange={(e) => setEmailInput(e.target.value)}
                 />
                 
-                <InputField
+                <FloatingInputField
                     key={state?.timestamp || "password-input"}
                     label="Password"
                     type="password"

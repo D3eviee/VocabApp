@@ -4,6 +4,30 @@ import { playgrounds, playgroundFlashcards } from "@/server/schema";
 import { eq, and } from "drizzle-orm";
 import { getCurrentUser } from "@/lib/auth";
 
+interface CreatePlaygroundParams {
+  title: string;
+  userId: string;
+  sourceType: "upload" | "catalog";
+  modelUrl: string | null;
+  thumbnailUrl: string | null;
+}
+// CREATES RECORD FOR PLAYGROUNDS
+export async function createPlaygroundRecord(data: CreatePlaygroundParams){
+  const {modelUrl, sourceType, thumbnailUrl, title, userId} = data
+  const [playground] = await db
+    .insert(playgrounds)
+    .values({
+      title,
+      userId,
+      sourceType,
+      modelUrl,
+      thumbnailUrl,
+    })
+    .returning({ id: playgrounds.id });
+
+    return playground;
+}
+
 export async function getPlaygroundById(playgroundId: string) {
   const user = await getCurrentUser();
   if (!user) return null;

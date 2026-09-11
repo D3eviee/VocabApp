@@ -1,35 +1,33 @@
-import { ButtonHTMLAttributes } from "react";
+"use client";
+import { ButtonHTMLAttributes, ReactNode } from "react";
 import { Loader2 } from "lucide-react";
 
-export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  isLoading?: boolean;
-  variant?: "primary" | "secondary" | "danger" | "ghost";
+type ButtonVariant = "primary" | "secondary" | "danger" ;
+
+interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+    variant?: ButtonVariant;
+    isLoading?: boolean;
+    children: ReactNode;
 }
 
-export default function Button({ children, isLoading = false, variant = "primary", className = "", disabled, ...props }: ButtonProps) {
-  const baseStyles = "inline-flex items-center justify-center gap-2 text-sm font-semibold transition-all active:scale-95";
+export const Button = ({ variant = "primary", isLoading = false, disabled, children, className = "", ...props }: ButtonProps) => {
+  const baseStyles = "w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl text-13 font-semibold shadow-xs transition-all active:scale-95 hover:cursor-pointer disabled:opacity-50";
   
   const variants = {
-    primary: "bg-gray-900 hover:bg-black text-white shadow-sm",
-    secondary: "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 shadow-sm",
-    danger: "bg-red-50 text-red-600 hover:bg-red-100",
-    ghost: "bg-transparent text-gray-500 hover:text-gray-900 hover:bg-gray-100"
-  };
-
-  const isDisabled = disabled || isLoading;
+        primary: "outline-light-border text-white bg-main-gradient hover:bg-linear-to-tl",
+        secondary: "bg-light-border text-subheading border border-[#D4D4D4] hover:bg-[#D4D4D4]",
+        danger: "bg-red-600 border-red-700 shadow-red-200 text-white hover:bg-red-700", 
+    };
   
-  const activeStyles = isDisabled 
-    ? "bg-gray-100 text-gray-400 cursor-not-allowed border-transparent shadow-none" 
-    : variants[variant];
-
   return (
     <button
-      disabled={isDisabled}
-      className={`${baseStyles} ${activeStyles} ${className}`}
       {...props}
+      disabled={isLoading || disabled}
+      className={`${baseStyles} ${variants[variant]} ${className}`}
     >
-      {isLoading && <Loader2 className="animate-spin" size={16} />}
-      {children}
+      {isLoading ? (
+        <Loader2 size={18} className="animate-spin text-white opacity-80" />
+      ) : ( children )}
     </button>
-  );
-}
+    );
+};

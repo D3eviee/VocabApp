@@ -1,8 +1,8 @@
 import { create } from 'zustand';
 
 export type ModalType = 
-  | "createDeck" 
-  | "createRoadmap" 
+  | "createFlashcardsDeck" 
+  | "createStoryboard" 
   | "createPlayground"
   | "deleteDeckConfirm" 
   | "resetDeckConfirm" 

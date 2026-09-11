@@ -3,6 +3,46 @@ import { db } from "@/server/db";
 import { deckItems } from "@/server/schema"; 
 import { eq, asc, max } from "drizzle-orm";
 import { getCurrentUser } from "@/lib/auth"; 
+import { CreateDeckState } from "@/lib/types";
+import { revalidatePath } from "next/cache";
+import { verifyLimits } from "@/lib/subscription";
+import { createDeckRecord } from "@/lib/data/decks";
+
+// CREATES NEW STORYBOARD DECK
+export async function createStoryboardAction(_prevState: CreateDeckState, formData: FormData ): Promise<CreateDeckState> {
+  const titleRaw = formData.get("title")?.toString() || "";
+  const title = titleRaw.trim().replace(/\s+/g, " ");
+  if (!title) return { success: false, error: "Title is required." };
+
+  try {
+    const user = await getCurrentUser();
+    if (!user) return { success: false, error: "User is unauthorized" };
+
+    // LIMIT VERIFICATION (PAYWALL)
+    const canCreate = await verifyLimits(user.id, "storyboard");
+    if (!canCreate) {
+      return { 
+        success: false, 
+        error: "Limit reached. Upgrade to pro plan.",
+        requiresUpgrade: true, // FLAG FOR FRONTEND
+      };
+    }
+    
+    const newStoryboard = await createDeckRecord(title, user.id, "storyboard")
+    if (!newStoryboard || !newStoryboard.id) return { success: false, error: "Failed to create storyboard. Please try again later." };
+
+    revalidatePath("/dashboard/decks");
+    return { success: true, deckId: newStoryboard.id };
+  }catch (error) {
+    console.error("[CREATE_STORYBOARD_ERROR]", error);
+
+    return { 
+      success: false, 
+      error: "An unexpected error occurred.", 
+      title 
+    }
+  }
+}
 
 // GETTING ALL STORYBOARD ITEMS
 export async function getStoryboardItems(storyboardId: string) {

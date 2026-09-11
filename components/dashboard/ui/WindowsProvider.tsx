@@ -7,10 +7,10 @@ import { EditSecurityDialog } from "../../dialogs/EditSecurityDialog";
 import { DeleteAccountDialog } from "../../dialogs/DeleteAccountDialog";
 import { EditPersonalDialog } from "../../dialogs/EditPersonalDialog";
 import { SubscriptionDialog } from "../../dialogs/SubscriptionDialog";
-import { CreateDeckModal } from "../../modals/CreateDeckModal";
+import { CreateFlashardsDeckModal } from "../../modals/CreateFlashardsDeckModal";
 import { CreateStoryboardModal } from "../../modals/CreateStoryboardModal";
-import { AiDeckModal } from "../../modals/AiDeckModal";
 import { CreatePlaygroundModal } from "../../modals/CreatePlaygroundModal";
+import { CreateWithAIModal } from "@/components/modals/CreateWithAIModal";
 
 export const WindowsProvider = () => {
   const [isMounted, setIsMounted] = useState(false);
@@ -23,10 +23,10 @@ export const WindowsProvider = () => {
 
   return (
     <>
-      <CreateDeckModal />
+      <CreateFlashardsDeckModal />
       <CreateStoryboardModal />
       <CreatePlaygroundModal/>
-      <AiDeckModal/>
+      <CreateWithAIModal/>
 
       <DeleteDeckDialog/>
       <ResetDeckDialog/>

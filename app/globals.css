@@ -20,6 +20,10 @@
   --color-subheading: #494949;
   --color-light-border: #EFEEF4;
   --color-hover-border: #D4D4D4;
+  --color-error-primary: #F61B2D;
+  --color-error-secondary: #F74752;
+  --color-confirm-primary: #1C7921;
+  --color-confirm-secondary: #3CBF41;
 }
 
 

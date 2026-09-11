@@ -6,13 +6,13 @@ import { ModalType, useModal } from "@/store/modal-store";
 type MenuItem = {
     label:string
     icon:ReactNode
-    modal:ModalType
+    type:ModalType
 }
 
 const MENU_ITEMS: MenuItem[] = [
-    { label: "New Deck", icon: <Layers strokeWidth={1.5} size={16} />, modal: "createDeck" },
-    { label: "New Storyboard", icon: <BookOpen strokeWidth={1.5} size={16} />, modal: "createRoadmap" },
-    { label: "Playground", icon: <Box strokeWidth={1.5} size={16} />, modal: "createPlayground" },
+    { label: "New Deck", icon: <Layers strokeWidth={1.5} size={16} />, type: "createFlashcardsDeck" },
+    { label: "New Storyboard", icon: <BookOpen strokeWidth={1.5} size={16} />, type: "createStoryboard" },
+    { label: "Playground", icon: <Box strokeWidth={1.5} size={16} />, type: "createPlayground" },
 ];
 
 export const CreateMenu = () => {
@@ -25,7 +25,6 @@ export const CreateMenu = () => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)){
         setIsOpen(false);
       }
-        
     };
     
     if (isOpen) document.addEventListener("mousedown", handleClickOutside);
@@ -61,13 +60,13 @@ export const CreateMenu = () => {
             className="absolute z-50 backdrop-blur-xl bg-white/50 shadow-2xl sm:right-0 sm:top-[calc(100%+4px)] outline-1 outline-light-border w-fit p-2 rounded-2xl"
           >
             <div className="flex flex-col">
-              {MENU_ITEMS.map((item, _) => (
+              {MENU_ITEMS.map((item) => (
                 <button
                   key={item.label}
                   role="menuitem"
                   onClick={() => {
                     setIsOpen(false);
-                    setTimeout(() => onOpen(item.modal), 0);
+                    setTimeout(() => onOpen(item.type), 0);
                   }}
                   className="w-full flex items-center gap-2 px-3 py-2 rounded-xl cursor-pointer hover:backdrop-blur-xs border-[1.5px] border-transparent hover:border-[#F2F2F2]"
                 >

@@ -1,6 +1,6 @@
 import { ArrowLeft, CheckCircle2 } from 'lucide-react'
-import Button from '../ui/Button'
 import Link from 'next/link'
+import { Button } from '../ui/Button'
 
 export const SessionEndView = () => {
     return (

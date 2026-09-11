@@ -106,7 +106,7 @@ export const deckItems = pgTable("deck_items", {
 });
 
 // HOW THE PLAYGROUND BEEN CREATED
-export const sourceTypeEnum = pgEnum("source_type", ["upload", "search", "generate"]);
+export const sourceTypeEnum = pgEnum("source_type", ["upload", "catalog"]);
 
 export const playgrounds = pgTable("playgrounds", {
   id: uuid("id").defaultRandom().primaryKey(),
