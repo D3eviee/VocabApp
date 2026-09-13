@@ -1,9 +1,10 @@
 import { Meaning } from "@/server/schema";
+import { FlashcardWordTypeBadge } from "./FlashcardWordTypeBadge";
 
 type FlashcardWordProps = {
-  word: string | null;
-  partOfSpeech: string | null;
-  meanings: Meaning[] | any[];
+  word: string | null
+  partOfSpeech: string | null
+  meanings: Meaning[]
 };
 
 export const getPartOfSpeechColor = (pos?: string | null) => {
@@ -26,25 +27,22 @@ export const getPartOfSpeechColor = (pos?: string | null) => {
 
 export const FlashcardWord = ({ word, partOfSpeech, meanings }: FlashcardWordProps) => {
   return (
-    <div className="w-full">
-      <div className="flex flex-col border-b-[0.5px] border-[#D4D4D4] border-dotted mb-6 pb-4">
-        <p 
-          className={`w-fit mb-4 px-2 py-1 rounded-md mx-auto text-xs font-semibold uppercase tracking-wider ${getPartOfSpeechColor(partOfSpeech)}`}>
-            {partOfSpeech?.replace('_', ' ') || 'noun'}
-        </p>
-        <h2 className="text-4xl font-bold text-[#111] text-center">{word}</h2>
+    <div className="h-full w-full bg-main-light rounded-4xl py-8 px-18 border-3 border-hover-button shadow-sm">
+      <div className="flex flex-col">
+        <FlashcardWordTypeBadge partOfSpeech={partOfSpeech}/>
+        <h2 className="text-4xl mt-4 font-bold text-heading text-center">{word}</h2>
       </div>
       
-      <div className="space-y-8">
-        {meanings?.map((m: any, mIdx: number) => (
-          <div key={m.id || mIdx}>
-            <p className="text-lg font-semibold text-[#333] text-center">{m.back}</p>
+      <div className="space-y-3 pt-8">
+        {meanings?.map((m: Meaning) => (
+          <div key={m.id} className="bg-white flex flex-col gap-1.5 rounded-2xl py-3 border-[0.5px] border-hover-border shadow-xs w-fit px-6 mx-auto">
+            <p className="text-base font-semibold text-subheading text-center">{m.back}</p>
             
             {m.examples && m.examples.some((ex: string) => ex.trim() !== "") && (
-              <div className="mt-1.5 space-y-2 pl-3">
+              <div className="flex flex-col gap-2">
                 {m.examples.map((ex: string, i: number) => {
                   if (!ex.trim()) return null;
-                  return <p key={i} className="text-sm italic font-light text-[#333] text-center">"{ex}"</p>;
+                  return <p key={i} className="text-sm italic font-light text-subheading text-center">"{ex}"</p>;
                 })}
               </div>
             )}

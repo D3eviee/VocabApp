@@ -1,6 +1,7 @@
 import { db } from "@/server/db";
 import { decks, deckItems } from "@/server/schema";
-import { eq, desc, and } from "drizzle-orm";
+import { eq, desc, and, lte, ne } from "drizzle-orm";
+import { getCurrentUser } from "../auth";
 interface CreateCardParams {
   deckId: string;
   front: string;

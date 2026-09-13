@@ -1,16 +1,8 @@
-import { rateCardAction } from "@/app/actions/queries";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { StudyModeControlsButton } from "./StudyModeControlsButton";
 
 type StudyModeControlsProps = {
-  deckId: string;
-  currentIndex: number;
-  cardsAmount: number;
-  currentCard: any;
-  isFlipped: boolean;
-  setIsFlipped: (val: boolean) => void;
-  setIsFinished: (val: boolean) => void;
-  setCurrentIndex: (value: React.SetStateAction<number>) => void;
+  onRate: (rating: 'again' | 'hard' | 'good' | 'easy') => void;
+  activeRating: 'again' | 'hard' | 'good' | 'easy' | null;
 }
 
 const RATING_OPTIONS = [
@@ -20,51 +12,21 @@ const RATING_OPTIONS = [
   { type: 'easy', label: 'Easy', timeHint: '5 days' },
 ] as const;
 
-export const StudyModeControls = ({ 
-  deckId, setCurrentIndex, setIsFlipped, isFlipped, 
-  setIsFinished, currentIndex, currentCard, cardsAmount 
-}: StudyModeControlsProps) => {
-  const queryClient = useQueryClient();
-
-  const mutation = useMutation({
-    mutationFn: ({ cardId, rating }: { cardId: string, rating: 'again' | 'hard' | 'good' | 'easy' }) => rateCardAction(cardId, rating),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['deck-flashcards-items', deckId] });
-
-      // Resetujemy obrót (Fiszka zniknie z ekranu i pojawi się nowa)
-      setIsFlipped(false);
-
-      // Przechodzimy dalej lub kończymy
-      if (currentIndex < cardsAmount - 1) {
-        setCurrentIndex(prev => prev + 1);
-      } else {
-        setIsFinished(true);
-        // Opcjonalnie: na sam koniec sesji możemy wreszcie odświeżyć due-items
-        queryClient.invalidateQueries({ queryKey: ['deck-items-due', deckId] });
-      }
-    }
-  });
-
-  const handleRateCard = (rating: 'again' | 'hard' | 'good' | 'easy') => {
-    mutation.mutate({ cardId: currentCard.id, rating });
-  };
-
+export const StudyModeControls = ({ onRate, activeRating }: StudyModeControlsProps) => {
   return (
-    <div className="w-full flex flex-row items-center justify-center py-1">
-      {isFlipped &&
-        <div className="flex flex-row justify-center gap-2 sm:gap-4 w-full">
+    <div className="w-full h-fit flex flex-row items-center justify-center py-12 px-32 max-w-5xl">
+        <div className="flex flex-row justify-center gap-2 w-full">
           {RATING_OPTIONS.map((option) => (
             <StudyModeControlsButton
               key={option.type}
               type={option.type}
               label={option.label}
               timeHint={option.timeHint}
-              disabled={mutation.isPending}
-              onClick={() => handleRateCard(option.type)}
+              onClick={() => onRate(option.type)}
+              isPressed={activeRating === option.type} 
             />
           ))}
         </div>
-    }
     </div>
   )
 }

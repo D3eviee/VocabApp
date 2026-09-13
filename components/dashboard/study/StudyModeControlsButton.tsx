@@ -1,3 +1,4 @@
+'use client'
 type RatingType = 'again' | 'hard' | 'good' | 'easy';
 
 type RatingButtonProps = {
@@ -5,44 +6,41 @@ type RatingButtonProps = {
   label: string;
   timeHint: string;
   onClick: () => void;
-  disabled?: boolean;
+  isPressed?: boolean;
 };
 
-const buttonStyles: Record<RatingType, { button: string; label: string, timeHint:string }> = {
-  again: {
-    button: "hover:bg-red-50 hover:border-red-200 hover:text-red-600",
-    label: "group-hover:text-red-600",
-    timeHint: "group-hover:text-red-500",
+const buttonStyles: Record<RatingType, { button: string, isPressedStyle:string }> = {
+  again: { 
+    button: "bg-[#F60000] hover:bg-[#E50000]",
+    isPressedStyle: "active:bg-[#E50000]"
   },
-  hard: {
-    button: "hover:bg-orange-50 hover:border-orange-200 hover:text-orange-600",
-    label: "group-hover:text-orange-600",
-    timeHint: "group-hover:text-orange-500",
+  hard: { 
+    button: "bg-[#FF8C00] hover:bg-[#EE7B00]", 
+    isPressedStyle: "active:bg-[#EE7B00]"
   },
-  good: {
-    button: "hover:bg-green-50 hover:border-green-200 hover:text-green-600",
-    label: "group-hover:text-green-600",
-    timeHint: "group-hover:text-green-500",
+  good: { 
+    button: "bg-[#3DCB3F] hover:bg-[#2EBA2E]",
+    isPressedStyle: "active:bg-[#2EBA2E]"
   },
-  easy: {
-    button: "hover:bg-blue-50 hover:border-blue-200 hover:text-blue-300 ",
-    label: "group-hover:text-blue-600",
-    timeHint: "group-hover:text-blue-500",
+  easy: { 
+    button: "bg-[#3783FF] hover:bg-[#2672EE]", 
+    isPressedStyle: "bg-[#2672EE]"
   },
 };
 
-export const StudyModeControlsButton = ({ type, label, timeHint, onClick, disabled }: RatingButtonProps) => {
+export const StudyModeControlsButton = ({ type, label, timeHint, onClick, isPressed }: RatingButtonProps) => {
   const styles = buttonStyles[type];
 
   return (
-    <button 
+        <button
       onClick={onClick}
-      disabled={disabled}
-      className={`w-32 flex flex-col items-center py-2 rounded-2xl bg-white border border-gray-100 shadow-sm transition-all active:scale-95 group disabled:opacity-50 disabled:pointer-events-none hover:cursor-pointer ${styles.button}`}
+      className={`w-full flex flex-col items-center py-3 border-[0.5px] border-hover-border rounded-3xl transition-all duration-100 cursor-pointer group 
+      ${styles.button} 
+      ${isPressed ? `${styles.isPressedStyle} scale-95 brightness-90` : 'bg-light-border active:scale-95'}`}
     >
-      <span className={`text-sm font-bold text-[#333] ${styles.label}`}>{label}</span>
-      <span className={`text-xs font-medium text-[#999] ${styles.timeHint}`}>{timeHint}
-      </span>
+    
+      <span className={`text-sm font-bold text-subheading group-hover:text-white ${isPressed ? "text-white" : ""}`}>{label}</span>
+      <span className={`text-sm font-medium text-subheading group-hover:text-white ${isPressed ? "text-white" : ""}`}>{timeHint}</span>
     </button>
   );
 };

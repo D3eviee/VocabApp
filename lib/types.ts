@@ -26,10 +26,19 @@ export type Flashcard = {
   createdAt: Date;
 }
 
+export type StudyFlashcard = {
+  id: string;
+  partOfSpeech: string | null,
+  front: string | null;
+  meanings: Meaning[];
+  variation: WordVariation[]
+}
+export type FlashcardRate = 'again' | 'hard' | 'good' | 'easy'
+
 export type PlaygroundThumbnail = {
   id: string;
- title: string;
- thumbnailUrl: string | null;
+  title: string;
+  thumbnailUrl: string | null;
 }
 
 export type CreateDeckState = {

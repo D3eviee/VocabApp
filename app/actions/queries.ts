@@ -39,7 +39,7 @@ export async function rateCardAction(cardId: string, rating: 'again' | 'hard' | 
 
 
     // SETTING USER STREAK
-    let newStreak = Number(users.streak) || 0;
+    let newStreak = Number(user.streak) || 0;
     const lastStudy = user.lastStudyDate ? new Date(user.lastStudyDate) : null;
     if (!lastStudy) newStreak = 1;
     else if (isYesterday(lastStudy)) newStreak += 1;
@@ -104,31 +104,6 @@ export async function reorderStoryPartsAction(items: { id: string; order: number
   } catch (error) {
     console.error("Reorder Error:", error);
     return { success: false, error: "Nie udało się zapisać kolejności" };
-  }
-}
-
-// USED TO GET ITEMS FOR STUDYING IN STUDY MODE
-export async function getDueDeckItems(deckId: string) {
-  try {
-    const user = await getCurrentUser();
-    if (!user) throw new Error("Unauthorized");
-    
-    const today = new Date();
-    
-    return await db.select()
-      .from(deckItems)
-      .where(
-        and(
-          eq(deckItems.deckId, deckId),
-          lte(deckItems.dueDate, today),
-          ne(deckItems.partOfSpeech, "draft")
-        )
-      )
-      .orderBy(deckItems.order);
-      
-  } catch (error) {
-    console.error("Failed to fetch due cards:", error);
-    return [];
   }
 }
 

@@ -3,7 +3,7 @@ import { Plus, Loader2 } from "lucide-react";
 import { DeckMenuItem } from "./DeckMenuItem";
 import { useEditorStore } from '@/store/use-editor-store';
 import { useFlashcardQueries } from "@/lib/hooks/useFlashcardsQueries";
-import { BackToDashboardButton } from "./ui/BackToDashboardButton";
+import { BackToDashboardLink } from "./ui/BackToDashboardLink";
 import { Flashcard } from "@/lib/types";
 
 type DeckMenuProps = {
@@ -38,7 +38,7 @@ export const DeckMenu = ({ deckId, onNavigateToEditor }: DeckMenuProps) => {
   return (
     <aside className="relative w-full h-full bg-main-light border-r border-r-light-border flex flex-col overflow-hidden">
       <div className="top-0 p-2 flex items-center justify-between shrink-0">
-        <BackToDashboardButton/>
+        <BackToDashboardLink/>
         <p className="text-main-dark font-bold">Cards</p>
 
         <button

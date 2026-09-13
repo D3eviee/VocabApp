@@ -1,7 +1,7 @@
 import { ChevronLeft } from "lucide-react"
 import Link from "next/link"
 
-export const BackToDashboardButton = () => {
+export const BackToDashboardLink = () => {
   return (
     <Link
         href="/dashboard" 

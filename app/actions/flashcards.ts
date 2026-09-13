@@ -1,7 +1,7 @@
 'use server'
 import { db } from "@/server/db";
 import { deckItems, decks } from "@/server/schema";
-import { eq, desc, and, ne} from "drizzle-orm";
+import { eq, desc, and, ne, lte} from "drizzle-orm";
 import { getCurrentUser } from "@/lib/auth";
 import { CreateDeckState } from "@/lib/types";
 import { verifyLimits } from "@/lib/subscription";
@@ -44,10 +44,9 @@ export async function createFlashcardsDeckAction(_prevState: CreateDeckState, fo
   }
 }
 
-// GET FLASHCARD DECK ITEMS
+// GET FLASHCARD DECK ITEMS FOR EDIT MODE
 export async function getCardsForFlashcardDeckAction(deckId: string) {
   try {
-    // AUTH
     const user = await getCurrentUser();
     if (!user) throw new Error( "Unauthorized. Please login." );
 
@@ -61,6 +60,38 @@ export async function getCardsForFlashcardDeckAction(deckId: string) {
   } catch (error) {
     console.error("Failed to fetch flashcards:", error);
     throw new Error("Failed to load flashcards. Please try again later.");
+  }
+}
+
+// GET ITEMS FOR STUDY SESSION
+export async function getDueDeckItemsAction(deckId: string) {
+  try {
+    const user = await getCurrentUser();
+    if (!user) throw new Error( "Unauthorized. Please login." );
+    
+    const today = new Date();
+    
+    return await db
+      .select({
+        id: deckItems.id,
+        front: deckItems.front,
+        variation: deckItems.variations,
+        partOfSpeech: deckItems.partOfSpeech,
+        meanings: deckItems.meanings,
+      })
+      .from(deckItems)
+      .where(
+        and(
+          eq(deckItems.deckId, deckId),
+          lte(deckItems.dueDate, today),
+          ne(deckItems.partOfSpeech, "draft")
+        )
+      )
+      .orderBy(deckItems.order);
+      
+  } catch (error) {
+    console.error("Failed to fetch due cards:", error)
+    throw new Error("Failed to load cards. Please check your connection.");
   }
 }
 
