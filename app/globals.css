@@ -40,6 +40,11 @@
   @apply bg-linear-to-tr from-[#6155f5] to-[#CB30E0]
 }
 
+@utility text-main-gradient {
+  @apply bg-linear-to-tr from-[#6155f5] to-[#CB30E0] bg-clip-text text-transparent;
+}
+
+
 @layer utilities {
   .heading-primary {
     font-size: 1.875rem;

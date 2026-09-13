@@ -12,7 +12,7 @@ export const FloatingSelectField = forwardRef<HTMLSelectElement, FloatingSelectP
     
     return (
       <div 
-        className={`relative transition-colors ${disabled ? 'opacity-60 bg-gray-50' : ''} ${className}`}
+        className={`w-full relative transition-colors ${disabled ? 'opacity-60 bg-gray-50' : ''} ${className}`}
       >
         <select
           {...props}

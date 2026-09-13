@@ -1,4 +1,5 @@
 import { createCardAction, updateCardAction, deleteCardAction, getCardsForFlashcardDeckAction  } from '@/app/actions/flashcards';
+import { FlashcardDraft } from '@/store/use-editor-store';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 export const useFlashcardQueries = (deckId: string) => {
@@ -22,7 +23,7 @@ export const useFlashcardQueries = (deckId: string) => {
 
   // UPDATE CARD
   const updateCard = useMutation({
-    mutationFn: ({ id, data }: { id: string, data: any }) => updateCardAction(id, data),
+    mutationFn: ({ id, data }: { id: string, data: FlashcardDraft }) => updateCardAction(id, data),
     onSuccess: (result) => { if (result?.success) invalidate(); }
   });
 

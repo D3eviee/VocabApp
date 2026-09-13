@@ -9,7 +9,7 @@ export const FloatingInputField = forwardRef<HTMLInputElement, FloatingInputProp
   
   return (
     <div 
-      className={`relative transition-colors ${disabled ? 'opacity-60 bg-gray-50' : ''} ${className}`}
+      className={`relative w-full elative transition-colors ${disabled ? 'opacity-60 bg-gray-50' : ''}`}
     >
       <input
           {...props}
@@ -18,7 +18,7 @@ export const FloatingInputField = forwardRef<HTMLInputElement, FloatingInputProp
           autoFocus={autoFocus}
           disabled={disabled}
           placeholder={placeholder || " "}
-          className="peer block w-full outline-none appearance-none bg-transparent border border-hover-border rounded-2xl px-4 pb-2 pt-6 text-15 text-heading focus:border-gray-500 disabled:cursor-not-allowed"
+          className={`${className} peer block w-full outline-none appearance-none bg-transparent border border-hover-border rounded-2xl px-4 pb-2 pt-6 text-15 text-heading focus:border-gray-500 disabled:cursor-not-allowed`}
         />
         <label
           htmlFor={inputId}
