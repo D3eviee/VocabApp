@@ -115,24 +115,6 @@ export async function updateStoryboardItem(id: string, data: any) {
   }
 }
 
-// DELETE EVENT
-export async function deleteStoryboardItem(id: string | undefined) {
-  try {
-    const user = await getCurrentUser();
-    if (!user) return { success: false, error: "Unauthorized" };
-
-    if (!id) return { success: false, error: "Missing ID" };
-
-    await db.delete(deckItems)
-      .where(eq(deckItems.id, id));
-
-    return { success: true };
-  } catch (error) {
-    console.error("Delete Storyboard Item Error:", error);
-    return { success: false, error: "Failed to delete item" };
-  }
-}
-
 // ORDER CHANGE 
 export async function reorderStoryboardItems(newOrder: { id: string; order: number }[]) {
   try {

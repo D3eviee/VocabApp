@@ -16,7 +16,7 @@ export type ModalType =
 export interface ModalData {
   deckId?: string;
   itemId?: string;
-  itemType?: "flashcard" | "storyboardEvent"; 
+  itemType?: "flashcard" | "storyboard"; 
   onSuccess?: () => void; 
   user?: { firstName: string; email: string };
   subscription?: {isPro: boolean, periodEnd: Date | null, cancelAtPeriodEnd: boolean}

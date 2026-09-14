@@ -1,4 +1,4 @@
-import { createCardAction, updateCardAction, deleteCardAction, getCardsForFlashcardDeckAction  } from '@/app/actions/flashcards';
+import { updateCardAction, getCardsForFlashcardDeckAction, createFlashcardAction  } from '@/app/actions/flashcards';
 import { FlashcardDraft } from '@/store/use-editor-store';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
@@ -17,7 +17,7 @@ export const useFlashcardQueries = (deckId: string) => {
   
   // CREATE CARD
   const createCard = useMutation({
-    mutationFn: () => createCardAction(deckId),
+    mutationFn: () => createFlashcardAction(deckId),
     onSuccess: (result) => { if (result?.success) invalidate(); }
   });
 
@@ -27,11 +27,5 @@ export const useFlashcardQueries = (deckId: string) => {
     onSuccess: (result) => { if (result?.success) invalidate(); }
   });
 
-  // 4. DELETE CARD
-  const deleteCard = useMutation({
-    mutationFn: (id: string) => deleteCardAction(id),
-    onSuccess: (result) => { if (result?.success) invalidate(); }
-  });
-
-  return { deckQuery, createCard, updateCard, deleteCard };
+  return { deckQuery, createCard, updateCard };
 };

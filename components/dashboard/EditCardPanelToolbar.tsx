@@ -28,7 +28,9 @@ export const EditCardPanelToolbar = ({ deckId, onBack }: { deckId: string, onBac
     if (!formData?.id) return;
     onOpen("deleteItemConfirm", { 
       itemId: formData.id, deckId: deckId, itemType: "flashcard",
-       onSuccess: () => { setActiveCardId(null); onBack(); }
+       onSuccess: () => { 
+        setActiveCardId(null); 
+        onBack(); }
     });
   };
 
@@ -40,7 +42,6 @@ export const EditCardPanelToolbar = ({ deckId, onBack }: { deckId: string, onBac
       }
     });
   };
-
 
   useEffect(() => {
     if (!activeCardId) {

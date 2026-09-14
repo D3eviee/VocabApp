@@ -1,6 +1,6 @@
 'use server'
 import { db } from "@/server/db";
-import { deckItems, decks } from "@/server/schema";
+import { deckItems } from "@/server/schema";
 import { eq, desc, and, ne, lte} from "drizzle-orm";
 import { getCurrentUser } from "@/lib/auth";
 import { CreateDeckState } from "@/lib/types";
@@ -122,7 +122,40 @@ export async function resetFlashcardsDeckProgressAction(deckId: string) {
   }
 }
 
-// 2. CARD DATA UPDATE
+// CREATE NEW FLASHCARD -> FLASHCARD HAS DRAFT STATUS -> WE SAVE IT AUTOMATICALLY TO DB
+export async function createFlashcardAction(deckId: string) {
+  try {
+    const user = await getCurrentUser();
+    if (!user) return { success: false, error: "User is unauthorized" };
+
+    const isOwner = await checkDeckOwnership(deckId, user.id);
+    if (!isOwner) return { success: false, error: "Unauthorized deck access." };
+
+    const [newCard] = await db
+      .insert(deckItems)
+      .values({
+        deckId: deckId,
+        front: "New Word",
+        meanings: [{ 
+          id: crypto.randomUUID(), 
+          back: "", 
+          examples: [] 
+        }], 
+        variations: [],
+        partOfSpeech: "draft",
+        order: 0,
+      })
+      .returning();
+
+    revalidatePath(`/dashboard/decks/${deckId}/edit`);
+    return { success: true, data: newCard };
+  } catch (error) {
+    console.error("Database Insert Error:", error);
+    return { success: false, error: "Failed to create new card" };
+  }
+}
+
+// ------- TODO -------- CARD DATA UPDATE
 export async function updateCardAction(id: string | undefined, data: any) {
   if(!id) return { success: false, error: "No ID provided" };
 
@@ -145,73 +178,5 @@ export async function updateCardAction(id: string | undefined, data: any) {
   } catch (error) {
     console.error("Database Update Error:", error);
     return { success: false, error: "Failed to update card" };
-  }
-}
-
-// CREATE NEW CARD -> CARD WITH DRAFT STATUS -> USER HAVENT SAVED AFTER CREATING
-export async function createCardAction(deckId: string) {
-  try {
-    const [newCard] = await db
-      .insert(deckItems)
-      .values({
-        deckId: deckId,
-        front: "New Word",
-        meanings: [{ 
-          id: crypto.randomUUID(), 
-          back: "", 
-          examples: [] 
-        }], 
-        variations: [],
-        partOfSpeech: "noun",
-        order: 0,
-      })
-      .returning();
-
-    return { success: true, data: newCard };
-  } catch (error) {
-    console.error("Database Insert Error:", error);
-    return { success: false, error: "Failed to create new card" };
-  }
-}
-
-// DELETE ITEM FROM THE DECK
-export async function deleteCardAction(id: string | undefined) {
-  if (!id) return { success: false, error: "No ID provided" };
-
-  try {
-    // AUTH
-    const user = await getCurrentUser();
-    if (!user || !user.id) return { success: false, error: "Unauthorized" };
-
-    // WE GET CART TO CHECK IS THIS USER'S CARD
-    const [cardToVerify] = await db
-      .select({ deckId: deckItems.deckId })
-      .from(deckItems)
-      .where(eq(deckItems.id, id));
-
-    if (!cardToVerify) return { success: false, error: "Card not found" };
-
-    const [deck] = await db
-      .select({ id: decks.id })
-      .from(decks)
-      .where(
-        and(
-          eq(decks.id, cardToVerify.deckId),
-          eq(decks.userId, user.id)
-        )
-      );
-
-    if (!deck) return { success: false, error: "Forbidden: You don't own this card" };
-    
-
-    // DELETING
-    await db
-      .delete(deckItems)
-      .where(eq(deckItems.id, id));
-
-    return { success: true };
-  } catch (error) {
-    console.error("Database Delete Error:", error);
-    return { success: false, error: "Failed to delete card" };
   }
 }
