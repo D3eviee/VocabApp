@@ -6,7 +6,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { CreateDeckState } from "@/lib/types";
 import { verifyLimits } from "@/lib/subscription";
 import { revalidatePath } from "next/cache";
-import { createDeckRecord } from "@/lib/data/decks";
+import { checkDeckOwnership, createDeckRecord } from "@/lib/data/decks";
 
 // CREATES NEW FLASHCARDS DECK
 export async function createFlashcardsDeckAction(_prevState: CreateDeckState, formData: FormData ): Promise<CreateDeckState> {
@@ -92,6 +92,33 @@ export async function getDueDeckItemsAction(deckId: string) {
   } catch (error) {
     console.error("Failed to fetch due cards:", error)
     throw new Error("Failed to load cards. Please check your connection.");
+  }
+}
+
+// RESET USER DECK PROGESS 
+export async function resetFlashcardsDeckProgressAction(deckId: string) {
+  try {
+    const user = await getCurrentUser();
+    if (!user) return { success: false, error: "User is unauthorized" };
+
+    // CHECKING OWNERSHIP OF THE DECK
+    const isOwner = await checkDeckOwnership(deckId, user.id);
+    if (!isOwner) return { success: false, error: "Unauthorized deck access." };
+
+    await db.update(deckItems)
+      .set({
+        dueDate: new Date(),
+        interval: 0,
+        easeFactor: 2.5,
+        repetitions: 0
+      })
+      .where(eq(deckItems.deckId, deckId));
+
+    revalidatePath("/dashboard");
+    return { success: true };
+  } catch (error) {
+    console.error("Reset Deck Progress Error:", error);
+    return { success: false, error: "Failed to reset deck progress" };
   }
 }
 

@@ -2,10 +2,10 @@
 import { X } from "lucide-react";
 import { useEffect } from "react";
 interface BaseModalProps {
-  title: string
+  title?: string
   subtitle?: string
   isOpen: boolean;
-  onClose: () => void;
+  onClose?: () => void;
   children: React.ReactNode;
 }
 
@@ -36,19 +36,20 @@ export const BaseModal = ({ title, subtitle, children, isOpen, onClose }: BaseMo
       {/* Modal Content */}
       <div className="bg-white relative w-full max-w-md rounded-4xl shadow-2xl md:p-8 md:max-w-100">
         <div className="flex flex-row justify-between items-center mb-6">
-          <div className="flex flex-col">
+          {title && <div className="flex flex-col">
             <h2 className="text-xl font-semibold text-heading">{title}</h2>
-            <p className="text-xs font-light text-subheading">{subtitle}</p>
-          </div>
+            {subtitle && <p className="text-xs font-light text-subheading">{subtitle}</p>}
+          </div>}
           
 
-          <button 
+          {onClose && <button 
             onClick={onClose} 
             aria-label="Close modal"
             className="text-[#999] hover:bg-light-border p-1 rounded-md active:scale-95 transition-all duraion-75 hover:cursor-pointer hover:rotate-90"
           >
             <X size={20} strokeWidth={2.5} />
           </button>
+          }
         </div>
         {children}
       </div>
