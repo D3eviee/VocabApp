@@ -33,15 +33,18 @@
   --color-button-secondary: #858589;
   --color-button-background: #E6E6EC;
   --color-button-blue: #0B51C3;
+
+  --color-gradient-start: #6155f5;
+  --color-gradient-end: #CB30E0;
 }
 
 
 @utility bg-main-gradient {
-  @apply bg-linear-to-tr from-[#6155f5] to-[#CB30E0]
+  @apply bg-linear-to-tr from-gradient-start to-gradient-end;
 }
 
 @utility text-main-gradient {
-  @apply bg-linear-to-tr from-[#6155f5] to-[#CB30E0] bg-clip-text text-transparent;
+  @apply bg-linear-to-tr from-gradient-start to-gradient-end bg-clip-text text-transparent;
 }
 
 

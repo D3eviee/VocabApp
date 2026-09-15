@@ -1,6 +1,6 @@
 import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query';
-import { StoryboardEditor } from "@/components/dashboard/storytelling/StoryboardEditor";
 import { getStoryboardItems } from '@/app/actions/storyboard';
+import { StoryboardEditor } from '@/components/dashboard/storyboard/StoryboardEditor';
 
 type Params = Promise<{ id: string }>;
 

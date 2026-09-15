@@ -1,4 +1,6 @@
-import { getStoryboardItems, createStoryboardItem, deleteStoryboardItem, reorderStoryboardItems, updateStoryboardItem } from '@/app/actions/storyboard';
+import { deleteDeckItemAction } from '@/app/actions/decks';
+import { getStoryboardItems, createStoryboardItem, updateStoryboardItem, reorderStoryboardItems } from '@/app/actions/storyboard';
+import { StoryboardDraft } from '@/store/use-storyboard-store';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 export const useStoryboardQueries = (storyboardId: string) => {
@@ -13,20 +15,20 @@ export const useStoryboardQueries = (storyboardId: string) => {
     staleTime: Infinity,
   });
   
-  const createPart = useMutation({
+  const addStoryboardItem = useMutation({
     mutationFn: () => createStoryboardItem(storyboardId),
-    onSuccess: (result) => { if (result?.success) invalidate(); }
+    onSuccess: (result) => { if (result?.success) invalidate(); },
   });
 
   // UPDATE
-  const updatePart = useMutation({
-    mutationFn: ({ id, data }: { id: string, data: any }) => updateStoryboardItem(id, data),
-    onSuccess: (result) => { if (result?.success) invalidate(); }
+  const updateItem = useMutation({
+    mutationFn: ({ storyboardItem }: { storyboardItem:StoryboardDraft }) => updateStoryboardItem(storyboardItem),
+    onSuccess: (result) => { if (result?.success) invalidate(); },
   });
 
   // DELETE
-  const deletePart = useMutation({
-    mutationFn: (id: string) => deleteStoryboardItem(id),
+  const deleteStoryboardItem = useMutation({
+    mutationFn: (itemId: string) => deleteDeckItemAction(storyboardId, itemId),
     onSuccess: (result) => { if (result?.success) invalidate(); }
   });
 
@@ -36,5 +38,5 @@ export const useStoryboardQueries = (storyboardId: string) => {
     onSuccess: () => invalidate()
   });
 
-  return { storyQuery, createPart, updatePart, deletePart, reorderParts };
+  return { storyQuery, addStoryboardItem, updateItem, deleteStoryboardItem, reorderParts };
 };

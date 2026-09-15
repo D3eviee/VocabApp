@@ -14,7 +14,7 @@ import { EditCardPanelToolbar } from './EditCardPanelToolbar';
 
 export const EditCardPanel = ({ deckId, onBack }: { deckId: string, onBack: () => void }) => {
   const {
-    activeCardId, formData,
+    activeCardId, formData, addMeaning,
     updateMainField, setFormData, updateMeaningField, removeMeaning, 
     addMeaningExample, updateMeaningExample, removeMeaningExample
   } = useEditorStore();
@@ -22,7 +22,6 @@ export const EditCardPanel = ({ deckId, onBack }: { deckId: string, onBack: () =
   // DATA FETCHING
   const { deckQuery } = useFlashcardQueries(deckId);
   const { data: cards = [] } = deckQuery;
-
 
   useEffect(() => {
     if (!activeCardId) {
@@ -36,7 +35,10 @@ export const EditCardPanel = ({ deckId, onBack }: { deckId: string, onBack: () =
     }
   }, [activeCardId, cards, formData?.id, setFormData]);
 
-  if (!formData) return (<div className="flex-1 flex items-center justify-center text-gray-400 font-medium bg-white lg:bg-transparent h-full">Wybierz fiszkę...</div>)
+  if (!formData) 
+    return (
+      <div className="flex-1 flex items-center justify-center text-gray-400 font-medium bg-white lg:bg-transparent h-full">Select flashcard or create one.</div>
+    )
     
   return (
     <main className="relative flex-1 flex flex-col h-full overflow-y-auto custom-scrollbar min-h-0">
@@ -50,7 +52,7 @@ export const EditCardPanel = ({ deckId, onBack }: { deckId: string, onBack: () =
           <div className='relative px-4 pt-6 pb-3 rounded-3xl mb-10 border-[1.5px] border-hover-border'>
             <SectionHeader 
               title='Main word'
-              icon={<Pen size={20} className='text-[#6155f5]'/>} 
+              icon={<Pen size={20} className='text-gradient-start'/>} 
               textColor='text-main-gradient' 
             />
 
@@ -67,11 +69,11 @@ export const EditCardPanel = ({ deckId, onBack }: { deckId: string, onBack: () =
           <div className='relative px-4 pt-6 pb-3 rounded-3xl border-[1.5px] border-hover-border'>
             <SectionHeader 
               title='Translations'
-              icon={<Languages size={20} className='text-[#6155f5]'/>} 
+              icon={<Languages size={20} className='text-gradient-start'/>} 
               textColor='text-main-gradient' 
             />
             
-            <div className='flex flex-col gap-4'>
+            <div className='flex flex-col gap-4 mb-4'>
               {formData.meanings?.map((m: Meaning, mIdx: number) => (
                 <TranslationSection 
                   key={m.id} 
@@ -84,6 +86,15 @@ export const EditCardPanel = ({ deckId, onBack }: { deckId: string, onBack: () =
                 />
               ))}
             </div>
+
+            <div className='w-full text-center'>
+              <button 
+                className="text-white shadow-sm font-semibold text-sm px-8 py-2 bg-main-gradient text-center rounded-2xl cursor-pointer hover:bg-linear-to-l" 
+                onClick={() => addMeaning()}
+              >
+                Add Translation
+              </button>
+            </div>
           </div>
         </div>
         
@@ -92,7 +103,7 @@ export const EditCardPanel = ({ deckId, onBack }: { deckId: string, onBack: () =
           <div className='relative px-4 pt-6 pb-3 rounded-3xl border-[1.5px] border-hover-border'>
             <SectionHeader
               title="Variations" 
-              icon={<Shapes size={20} className='text-[#6155f5]'/>} 
+              icon={<Shapes size={20} className='text-gradient-start'/>} 
               textColor="text-main-gradient"
             />
 

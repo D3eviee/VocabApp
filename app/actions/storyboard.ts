@@ -1,12 +1,13 @@
 "use server";
 import { db } from "@/server/db";
-import { deckItems } from "@/server/schema"; 
-import { eq, asc, max } from "drizzle-orm";
+import { deckItems, decks } from "@/server/schema"; 
+import { eq, asc, sql, and } from "drizzle-orm";
 import { getCurrentUser } from "@/lib/auth"; 
 import { CreateDeckState } from "@/lib/types";
 import { revalidatePath } from "next/cache";
 import { verifyLimits } from "@/lib/subscription";
-import { createDeckRecord } from "@/lib/data/decks";
+import { checkDeckOwnership, createDeckRecord } from "@/lib/data/decks";
+import { StoryboardDraft } from "@/store/use-storyboard-store";
 
 // CREATES NEW STORYBOARD DECK
 export async function createStoryboardAction(_prevState: CreateDeckState, formData: FormData ): Promise<CreateDeckState> {
@@ -44,7 +45,7 @@ export async function createStoryboardAction(_prevState: CreateDeckState, formDa
   }
 }
 
-// GETTING ALL STORYBOARD ITEMS
+// GETTING ALL STORYBOARD DECK ITEMS
 export async function getStoryboardItems(storyboardId: string) {
   try {
     const user = await getCurrentUser();
@@ -61,15 +62,18 @@ export async function getStoryboardItems(storyboardId: string) {
   }
 }
 
-// CREATING NEW EVENT
+// CREATES NEW STORYBOARD ITEM
 export async function createStoryboardItem(storyboardId: string) {
   try {
     const user = await getCurrentUser();
     if (!user) return { success: false, error: "Unauthorized" };
 
-    // Najpierw sprawdzamy najwyższy 'order', żeby nowe wydarzenie spadło na sam dół listy
+    const isOwner = checkDeckOwnership(storyboardId, user.id)
+    if (!isOwner) return { success: false, error: "Storyboard not found or access denied" };
+
+    // GET THE HIHEST ORDER VALUE -> WE ADD NEW ITEM AS LAST
     const [highestOrderRecord] = await db
-      .select({ maxOrder: max(deckItems.order) })
+      .select({ maxOrder: sql<number>`coalesce(max(${deckItems.order}), -1)` })
       .from(deckItems)
       .where(eq(deckItems.deckId, storyboardId));
       
@@ -84,6 +88,7 @@ export async function createStoryboardItem(storyboardId: string) {
       description: "",
     }).returning();
 
+    revalidatePath(`/dashboard/storyboards/${storyboardId}/edit`);
     return { success: true, id: newItem.id };
   } catch (error) {
     console.error("Create Storyboard Item Error:", error);
@@ -91,23 +96,36 @@ export async function createStoryboardItem(storyboardId: string) {
   }
 }
 
-// UDPATE EVENT
-export async function updateStoryboardItem(id: string, data: any) {
+// UPADTES STORYBOARD ITEM
+export async function updateStoryboardItem(storyboardItem:StoryboardDraft) {
   try {
     const user = await getCurrentUser();
     if (!user) return { success: false, error: "Unauthorized" };
+    if (!storyboardItem.id) return { success: false, error: "Missing ID" };
 
-    if (!id) return { success: false, error: "Missing ID" };
+    const [existingItem] = await db
+      .select({ deckId: deckItems.deckId })
+      .from(deckItems)
+      .innerJoin(decks, eq(deckItems.deckId, decks.id))
+      .where(
+        and(
+          eq(deckItems.id, storyboardItem.id),
+          eq(decks.userId, user.id) 
+        )
+      )
+      .limit(1);
+
+    if (!existingItem) return { success: false, error: "Item not found or access denied" };
 
     await db.update(deckItems)
       .set({
-        title: data.title,
-        dateLabel: data.dateLabel,
-        description: data.description,
-        // Dodaj tu inne pola, które edytujesz w formularzu
+        title: storyboardItem.title,
+        dateLabel: storyboardItem.dateLabel,
+        description: storyboardItem.description,
       })
-      .where(eq(deckItems.id, id));
+      .where(eq(deckItems.id, storyboardItem.id));
 
+    revalidatePath(`/dashboard/storyboards/${existingItem.deckId}/edit`);
     return { success: true };
   } catch (error) {
     console.error("Update Storyboard Item Error:", error);
@@ -115,22 +133,42 @@ export async function updateStoryboardItem(id: string, data: any) {
   }
 }
 
-// ORDER CHANGE 
-export async function reorderStoryboardItems(newOrder: { id: string; order: number }[]) {
+// CHANGES ORDER FIELD FOR STORYBOARD ITEM
+export type ReorderPayload = { id: string; order: number }[];
+
+export async function reorderStoryboardItems(newOrder: ReorderPayload) {
   try {
     const user = await getCurrentUser();
     if (!user) return { success: false, error: "Unauthorized" };
-    
     if (!newOrder || newOrder.length === 0) return { success: true };
-    
-    await Promise.all(
-      newOrder.map((item) =>
-        db.update(deckItems)
-          .set({ order: item.order })
-          .where(eq(deckItems.id, item.id))
-      )
+
+    const [firstItemCheck] = await db.select({ deckId: deckItems.deckId })
+      .from(deckItems)
+      .innerJoin(decks, eq(deckItems.deckId, decks.id))
+      .where(and(
+         eq(deckItems.id, newOrder[0].id),
+         eq(decks.userId, user.id)
+      ))
+      .limit(1);
+
+    if (!firstItemCheck) return { success: false, error: "Access denied or item not found." };
+
+    const validDeckId = firstItemCheck.deckId;
+
+    const updateQueries = newOrder.map((item) =>
+      db.update(deckItems)
+        .set({ order: item.order })
+        .where(
+          and(
+            eq(deckItems.id, item.id),
+            eq(deckItems.deckId, validDeckId)
+          )
+        )
     );
 
+     await db.batch(updateQueries as any);
+
+    revalidatePath(`/dashboard/storyboards/${validDeckId}/edit`);
     return { success: true };
   } catch (error) {
     console.error("Reorder Storyboard Items Error:", error);

@@ -35,6 +35,16 @@ export type StudyFlashcard = {
 }
 export type FlashcardRate = 'again' | 'hard' | 'good' | 'easy'
 
+
+export type StoryboardItem = {
+  id: string;
+  front: string | null;
+  dateLabel: string | null;
+  title: string | null;
+  description: string | null;
+  order: number;
+}
+
 export type PlaygroundThumbnail = {
   id: string;
   title: string;

@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-
 export interface StoryboardDraft {
   id?: string;
   deckId?: string;
@@ -10,22 +9,22 @@ export interface StoryboardDraft {
 }
 
 interface StoryboardStore {
-  activePartId: string | null;
+  activeStoryboardItemId: string | null;
   setActivePartId: (id: string | null) => void;
-  formData: StoryboardDraft | null;
-  setFormData: (data: StoryboardDraft | null) => void;
+  activeStoryboardItem: StoryboardDraft | null;
+  setActiveStoryboardItem: (data: StoryboardDraft | null) => void;
   updateField: (field: keyof StoryboardDraft, value: string | null) => void;
 }
 
 export const useStoryboardStore = create<StoryboardStore>((set) => ({
-  activePartId: null,
-  formData: null,
+  activeStoryboardItemId: null,
+  activeStoryboardItem: null,
 
-  setActivePartId: (id) => set({ activePartId: id }),
-  setFormData: (data) => set({ formData: data }),
+  setActivePartId: (id) => set({ activeStoryboardItemId: id }),
+  setActiveStoryboardItem: (data) => set({ activeStoryboardItem: data }),
   updateField: (field, value) => set((state) => ({
-    formData: state.formData 
-      ? { ...state.formData, [field]: value } 
+    activeStoryboardItem: state.activeStoryboardItem 
+      ? { ...state.activeStoryboardItem, [field]: value } 
       : null
   })),
 }));
